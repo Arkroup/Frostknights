@@ -124,9 +124,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tokens">
-      <HintPath>D:\SteamLibrary\steamapps\workshop\content\1811990\3213784270\Tokens.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.2D.Animation.Runtime">
       <HintPath>D:\SteamLibrary\steamapps\common\Wildfrost\Modded\Wildfrost_Data\Managed\Unity.2D.Animation.Runtime.dll</HintPath>
     </Reference>

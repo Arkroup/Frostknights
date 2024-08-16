@@ -16,6 +16,10 @@ using UnityEngine.TextCore.Text;
 using WildfrostHopeMod.VFX;
 using WildfrostHopeMod.SFX;
 using WildfrostHopeMod.Utils;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Events;
 
 namespace Frostknights
 {
@@ -58,7 +62,7 @@ namespace Frostknights
 
         public override string Title => "Frostknights";
 
-        public override string Description => "This mod intends to add operators from Arknights as cards, in the future I plan to add a new Rhodes Island clan, new enemies and bosses, and more.\r\n\r\nCurrently there are 36 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released cards for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the pokefrost team for letting me use their effects!";
+        public override string Description => "This mod intends to add operators from Arknights as cards, in the future I plan to add a new Rhodes Island clan, new enemies and bosses, and more.\r\n\r\nCurrently there are 36 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released cards for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to Michael for tokens (really cool mod go check it out) and pokefrost (also really cool mod go check it out) for the help and for letting me use their effects!";
 
         private T TryGet<T>(string name) where T : DataFile
         {
@@ -103,12 +107,13 @@ namespace Frostknights
         private List<KeywordDataBuilder> keywords;
         private List<TraitDataBuilder> traits;
         private bool preLoaded = false;                      //Used to prevent redundantly reconstructing our data. Not truly necessary.
+        public static Frostknights instance;
 
         public TMP_SpriteAsset assetSprites;
         public override TMP_SpriteAsset SpriteAsset => assetSprites;
         private void patchstatuses(StatusIcon icon)
         {
-            string[] newtypes = new string[] { "burning", "thing2" };
+            string[] newtypes = new string[] { "burning", "trialofthorns" };
             if (newtypes.Contains(icon.type))
             {
                 icon.SetText();
@@ -124,12 +129,7 @@ namespace Frostknights
         {
             //Icons
             assetSprites = HopeUtils
-                .CreateSpriteAsset("assetSprites", directoryWithPNGs: this.ImagePath("Sprites"),
-                textures: new Texture2D[] {
-                    this.ImagePath("Sprites/burningicon.png").ToSprite().ToTexture()
-                }, sprites: new Sprite[] {
-                    this.ImagePath("Sprites/burningicon.png").ToSprite()
-                });
+                .CreateSpriteAsset("assetSprites", directoryWithPNGs: this.ImagePath("Sprites"), textures: [], sprites: []);
 
             foreach (var character in assetSprites.spriteCharacterTable)
             {
@@ -169,6 +169,26 @@ namespace Frostknights
                .WithCanStack(false)
                );
 
+            //Provoke Keyword
+            keywords.Add(
+                new KeywordDataBuilder(this)
+                .Create("provoke")
+                .WithTitle("Provoke")
+                .WithShowName(true)
+                .WithDescription("All enemies are <keyword=artemys.wildfrost.frostknights.provoked>")
+                .WithCanStack(false)
+                );
+
+            //Provoked Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("provoked")
+               .WithTitle("Provoked")
+               .WithShowName(true)
+               .WithDescription("Target only enemies with <keyword=artemys.wildfrost.frostknights.provoke>|Hits them all!")
+               .WithCanStack(false)
+               );
+
             //Burning Keyword
             keywords.Add(
                new KeywordDataBuilder(this)
@@ -179,6 +199,14 @@ namespace Frostknights
                .WithIconName("burningicon")
                .WithTitleColour(new Color(1f, 0.2f, 0.2f))
                .WithNoteColour(new Color(1f, 0.2f, 0.2f))
+               );
+
+            //Trial of Thorns Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("trialofthorns")
+               .WithTitle("Trial of Thorns")
+               .WithDescription("<End Turn>: Gain <keyword=artemys.wildfrost.frostknights.provoke> for a turn | Click to activate\nThrice per battle")
                );
 
             traits = new List<TraitDataBuilder>();
@@ -216,6 +244,29 @@ namespace Frostknights
                     {
                         trait.keyword = Get<KeywordData>("taunted");
                         trait.effects = new StatusEffectData[] { TryGet<StatusEffectData>("Hit All Taunt") };
+                    })
+                    );
+
+            //Provoke Trait
+            traits.Add(
+                TraitCopy("Hellbent", "Provoke")
+                .SubscribeToAfterAllBuildEvent(
+                    (trait) =>
+                    {
+                        trait.keyword = Get<KeywordData>("provoke");
+                        trait.effects = new StatusEffectData[] { TryGet<StatusEffectData>("While Active Provoked Until Turn End To Enemies") };
+                    })
+                    );
+
+            //Provoked Trait
+            traits.Add(
+                TraitCopy("Hellbent", "Provoked")
+                .WithOverrides(TryGet<TraitData>("Barrage"), TryGet<TraitData>("Aimless"), TryGet<TraitData>("Longshot"))
+                .SubscribeToAfterAllBuildEvent(
+                    (trait) =>
+                    {
+                        trait.keyword = Get<KeywordData>("provoked");
+                        trait.effects = new StatusEffectData[] { TryGet<StatusEffectData>("Hit All Provoke") };
                     })
                     );
 
@@ -622,6 +673,112 @@ namespace Frostknights
                 })
                 );
 
+            //Status 38: Provoke Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectTraitUntilTurnEnd>("Provoke Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .FreeModify<StatusEffectTraitUntilTurnEnd>(
+                    (data) =>
+                    {
+                        data.targetConstraints = new TargetConstraint[0];
+                    })
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTraitUntilTurnEnd)data).trait = TryGet<TraitData>("Provoke");
+                })
+                );
+
+            //Status 39: Trial of Thorns Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusTokenApplyX>("Trial of Thorns Button")
+                .WithType("trialofthorns")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Provoke Until Turn End");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = true;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
+            //Status 40: Provoked Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectTraitUntilTurnEnd>("Provoked Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .FreeModify<StatusEffectTraitUntilTurnEnd>(
+                    (data) =>
+                    {
+                        data.targetConstraints = new TargetConstraint[0];
+                    })
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTraitUntilTurnEnd)data).trait = TryGet<TraitData>("Provoked");
+                })
+                );
+
+            //Status 41: Hit All Provoke
+            statusEffects.Add(
+                StatusCopy("Hit All Enemies", "Hit All Provoke")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectChangeTargetMode)data).targetMode = ScriptableObject.CreateInstance<TargetModeProvoke>();
+                    ((StatusEffectData)data).textKey = new UnityEngine.Localization.LocalizedString();
+                })
+                );
+
+            //Status 42: While Active Provoked Until Turn End To Enemies
+            statusEffects.Add(
+                StatusCopy("While Active Aimless To Enemies", "While Active Provoked Until Turn End To Enemies")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Provoked Until Turn End");
+                    ((StatusEffectData)data).textKey = new UnityEngine.Localization.LocalizedString();
+                })
+                );
+
+            //Status 13: Summon Mirage 2
+            statusEffects.Add(
+                StatusCopy("Summon Plep", "Summon Mirage 2")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectSummon)data).summonCard = TryGet<CardData>("mirage");
+                })
+                );
+
+            //Status 14: Instant Summon Mirage
+            statusEffects.Add(
+                StatusCopy("Instant Summon Fallow", "Instant Summon Mirage")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectInstantSummon)data).targetSummon = TryGet<StatusEffectData>("Summon Mirage 2") as StatusEffectSummon;
+                })
+                );
+
+            //Status 15: On Turn Summon Mirage
+            statusEffects.Add(
+                StatusCopy("On Turn Summon Bootleg Copy of RandomEnemy", "On Turn Summon Mirage")
+                .WithText("Summon {0}")
+                .WithTextInsert("<card=artemys.wildfrost.frostknights.mirage>")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXOnTurn)data).effectToApply = TryGet<StatusEffectData>("Instant Summon Mirage");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
             cards = new List<CardDataBuilder>();
 
             //Code for cards
@@ -703,14 +860,11 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[2]
+                    data.startWithEffects = new CardData.StatusEffectStacks[3]
                     {
                         SStack("On Turn Apply Shell To Self", 3),
-                        SStack("When Hit Gain Teeth To Self", 3)
-                    };
-                    data.traits = new List<CardData.TraitStacks>()
-                    {
-                        TStack("Provoke", 1)
+                        SStack("When Hit Gain Teeth To Self", 3),
+                        SStack("Trial of Thorns Button", 3)
                     };
                 })
                 );
@@ -1479,6 +1633,7 @@ namespace Frostknights
             Events.OnStatusIconCreated += patchstatuses;
             base.Load();                          //Actual loading
             IconStuff();
+            Events.OnCheckEntityDrag += ButtonExt.DisableDrag;
             FloatingText ftext = GameObject.FindObjectOfType<FloatingText>(true);
             ftext.textAsset.spriteAsset.fallbackSpriteAssets.Add(assetSprites);
         }
@@ -1486,12 +1641,16 @@ namespace Frostknights
         private void IconStuff()
         {
             this.CreateIcon("burningicon", ImagePath("burningicon.png").ToSprite(), "burning", "spice", Color.black, new KeywordData[] { Get<KeywordData>("burning") })
-                    .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("penanceTrialofThorns", ImagePath("penancebutton.png").ToSprite(), "trialofthorns", "counter", Color.black, new KeywordData[] { Get<KeywordData>("trialofthorns") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
         }
 
         public override void Unload()
         {
             base.Unload();
+            Events.OnCheckEntityDrag -= ButtonExt.DisableDrag;
             Events.OnStatusIconCreated -= patchstatuses;
         }
 
@@ -1680,6 +1839,42 @@ namespace Frostknights
 
     }
 
+    public class TargetModeProvoke : TargetMode
+    {
+        public override Entity[] GetPotentialTargets(Entity entity, Entity target, CardContainer targetContainer)
+        {
+            HashSet<Entity> hashSet = new HashSet<Entity>();
+            hashSet.AddRange(from e in entity.GetAllEnemies()
+                             where (bool)e && e.enabled && e.alive && e.canBeHit && HasProvoke(e)
+                             select e);
+            if (hashSet.Count <= 0)
+            {
+                TargetModeBasic targetModeBasic = new TargetModeBasic();
+                return targetModeBasic.GetPotentialTargets(entity, target, targetContainer);
+            }
+
+            return hashSet.ToArray();
+        }
+
+        public override Entity[] GetSubsequentTargets(Entity entity, Entity target, CardContainer targetContainer)
+        {
+            return GetTargets(entity, target, targetContainer);
+        }
+
+        public bool HasProvoke(Entity entity)
+        {
+            foreach (Entity.TraitStacks t in entity.traits)
+            {
+                if (t.data.name == "artemys.wildfrost.frostknights.Provoke")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
     public class StatusEffectBurning : StatusEffectData
     {
         public CardAnimation buildupAnimation;
@@ -1775,7 +1970,7 @@ namespace Frostknights
             GameObject gameObject = new GameObject(name);
             UnityEngine.Object.DontDestroyOnLoad(gameObject);
             gameObject.SetActive(false);
-            StatusIcon icon = gameObject.AddComponent<StatusIcon>();
+            StatusIconExt icon = gameObject.AddComponent<StatusIconExt>();
             Dictionary<string, GameObject> cardIcons = CardManager.cardIcons;
             if (!copyTextFrom.IsNullOrEmpty())
             {
@@ -1808,6 +2003,525 @@ namespace Frostknights
             cardIcons[type] = gameObject;
 
             return gameObject;
+        }
+        public static GameObject CreateButtonIcon(this WildfrostMod mod, string name, Sprite sprite, string type, string copyTextFrom, Color textColor, KeywordData[] keys)
+        {
+            GameObject gameObject = new GameObject(name);
+            UnityEngine.Object.DontDestroyOnLoad(gameObject);
+            gameObject.SetActive(false);
+            StatusIconExt icon = gameObject.AddComponent<StatusIconExt>();
+            Dictionary<string, GameObject> cardIcons = CardManager.cardIcons;
+            icon.animator = gameObject.AddComponent<ButtonAnimator>();
+            icon.button = gameObject.AddComponent<ButtonExt>();
+            icon.animator.button = icon.button;
+            if (!copyTextFrom.IsNullOrEmpty())
+            {
+                GameObject text = cardIcons[copyTextFrom].GetComponentInChildren<TextMeshProUGUI>().gameObject.InstantiateKeepName();
+                text.transform.SetParent(gameObject.transform);
+                icon.textElement = text.GetComponent<TextMeshProUGUI>();
+                icon.textColour = textColor;
+                icon.textColourAboveMax = textColor;
+                icon.textColourBelowMax = textColor;
+            }
+            icon.onCreate = new UnityEngine.Events.UnityEvent();
+            icon.onDestroy = new UnityEngine.Events.UnityEvent();
+            icon.onValueDown = new UnityEventStatStat();
+            icon.onValueUp = new UnityEventStatStat();
+            icon.afterUpdate = new UnityEngine.Events.UnityEvent();
+            UnityEngine.UI.Image image = gameObject.AddComponent<UnityEngine.UI.Image>();
+            image.sprite = sprite;
+            CardHover cardHover = gameObject.AddComponent<CardHover>();
+            cardHover.enabled = false;
+            cardHover.IsMaster = false;
+            CardPopUpTarget cardPopUp = gameObject.AddComponent<CardPopUpTarget>();
+            cardPopUp.keywords = keys;
+            cardHover.pop = cardPopUp;
+            RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.zero;
+            rectTransform.sizeDelta *= 0.008f;
+            gameObject.SetActive(true);
+            icon.type = type;
+            cardIcons[type] = gameObject;
+            gameObject.AddComponent<UINavigationItem>();
+
+            return gameObject;
+        }
+        public static T CreateStatusButton<T>(this WildfrostMod mod, string name, string type, string iconGroup = "counter") where T : StatusEffectData
+        {
+            T status = ScriptableObject.CreateInstance<T>();
+            status.name = name;
+            status.targetConstraints = new TargetConstraint[0];
+            status.type = type;
+            status.isStatus = true;
+            status.iconGroupName = iconGroup;
+            status.visible = true;
+            status.stackable = false;
+            return status;
+        }
+        public static T ApplyX<T>(this T t, StatusEffectData effectToApply, StatusEffectApplyX.ApplyToFlags flags) where T : StatusEffectApplyX
+        {
+            t.effectToApply = effectToApply;
+            t.applyToFlags = flags;
+            return t;
+        }
+        public static T Register<T>(this T status, WildfrostMod mod) where T : StatusEffectData
+        {
+            status.ModAdded = mod;
+            AddressableLoader.AddToGroup<StatusEffectData>("StatusEffectData", status);
+            return status;
+        }
+    }
+
+    public class ButtonExt : Button
+    {
+        internal StatusIconExt Icon => GetComponent<StatusIconExt>();
+
+        internal static ButtonExt dragBlocker = null;
+
+        internal Entity Entity => Icon?.target;
+
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+            dragBlocker = this;
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
+            DisableDragBlocking();
+        }
+
+        public void DisableDragBlocking()
+        {
+            if (dragBlocker == this)
+            {
+                dragBlocker = null;
+            }
+        }
+
+        public static void DisableDrag(ref Entity arg0, ref bool arg1)
+        {
+            if (dragBlocker == null || arg0 != dragBlocker.Entity)
+            {
+                return;
+            }
+            arg1 = false;
+        }
+    }
+
+    public interface IStatusToken
+    {
+        void ButtonCreate(StatusIconExt icon);
+
+        void RunButtonClicked();
+
+        IEnumerator ButtonClicked();
+
+
+    }
+
+    public class StatusIconExt : StatusIcon
+    {
+        public ButtonAnimator animator;
+        public ButtonExt button;
+        private IStatusToken effectToken;
+
+        public override void Assign(Entity entity)
+        {
+            base.Assign(entity);
+            SetText();
+            onValueDown.AddListener(delegate { Ping(); });
+            onValueUp.AddListener(delegate { Ping(); });
+            afterUpdate.AddListener(SetText);
+            onValueDown.AddListener(CheckDestroy);
+
+            StatusEffectData effect = entity.FindStatus(type);
+            if (effect is IStatusToken effect2)
+            {
+                effectToken = effect2;
+                effect2.ButtonCreate(this);
+                button.onClick.AddListener(effectToken.RunButtonClicked);
+                onDestroy.AddListener(DisableDragBlocker);
+            }
+        }
+
+        public void DisableDragBlocker()
+        {
+            button.DisableDragBlocking();
+        }
+    }
+
+    public class StatusTokenApplyX : StatusEffectApplyX, IStatusToken
+    {
+        //Standard Code I wish I can put into IStatusToken
+        [Flags]
+        public enum PlayFromFlags
+        {
+            None = 0,
+            Board = 1,
+            Hand = 2,
+            Draw = 4,
+            Discard = 8
+        }
+
+        public PlayFromFlags playFrom = PlayFromFlags.Board;
+        public bool finiteUses = false;
+        public bool oncePerTurn = false;
+        protected bool unusedThisTurn = true;
+        public bool endTurn = false;
+        public float timing = 0.2f;
+
+        public override void Init()
+        {
+            base.Init();
+        }
+
+        public override bool RunTurnStartEvent(Entity entity)
+        {
+            if (entity.data.cardType.name == "Leader")
+            {
+                unusedThisTurn = true;
+            }
+            return base.RunTurnStartEvent(entity);
+        }
+
+        public virtual void RunButtonClicked()
+        {
+            if ((bool)References.Battle && References.Battle.phase == Battle.Phase.Play
+                && CorrectPlace()
+                && !target.IsSnowed
+                && target.owner == References.Player
+                && !target.silenced
+                && (!oncePerTurn || unusedThisTurn))
+
+            {
+                target.StartCoroutine(ButtonClicked());
+                unusedThisTurn = false;
+            }
+
+            if ((bool)target.IsSnowed || target.silenced)
+            {
+                NoTargetTextSystem noText = GameSystem.FindObjectOfType<NoTargetTextSystem>();
+                if (noText != null)
+                {
+                    TMP_Text textElement = noText.textElement;
+                    if ((bool)target.IsSnowed)
+                    {
+                        textElement.text = "Snowed!";
+                    }
+                    if ((bool)target.silenced)
+                    {
+                        textElement.text = "Inked!";
+                    }
+                    noText.PopText(target.transform.position);
+                }
+            }
+
+        }
+
+        public bool CheckFlag(PlayFromFlags flag) => (playFrom & flag) != 0;
+
+        public virtual bool CorrectPlace()
+        {
+            if (CheckFlag(PlayFromFlags.Board) && Battle.IsOnBoard(target))
+            {
+                return true;
+            }
+            if (CheckFlag(PlayFromFlags.Hand) && References.Player.handContainer.Contains(target))
+            {
+                return true;
+            }
+            if (CheckFlag(PlayFromFlags.Draw) && target.preContainers.Contains(References.Player.drawContainer))
+            {
+                return true;
+            }
+            if (CheckFlag(PlayFromFlags.Discard) && target.preContainers.Contains(References.Player.discardContainer))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //Main Code
+        public int fixedAmount = 0;
+        public int hitDamage = 0;
+
+        public IEnumerator ButtonClicked()
+        {
+            if (hitDamage != 0)
+            {
+                List<Entity> enemies = GetTargets();
+                int trueAmount = (hitDamage == -1) ? count : hitDamage;
+                foreach (Entity enemy in enemies)
+                {
+                    if (enemy.IsAliveAndExists())
+                    {
+                        Hit hit = new Hit(target, enemy, trueAmount);
+                        hit.canRetaliate = false;
+                        yield return hit.Process();
+                    }
+
+                }
+
+            }
+            yield return Run(GetTargets(), fixedAmount);
+            List<StatusTokenApplyXListener> listeners = FindListeners();
+            foreach (StatusTokenApplyXListener listener in listeners)
+            {
+                yield return listener.Run();
+            }
+            target.display.promptUpdateDescription = true;
+            yield return PostClick();
+        }
+
+        public List<StatusTokenApplyXListener> FindListeners()
+        {
+            List<StatusTokenApplyXListener> listeners = new List<StatusTokenApplyXListener>();
+            foreach (StatusEffectData status in target.statusEffects)
+            {
+                if (status is StatusTokenApplyXListener status2)
+                {
+                    if (status2.type == type + "_listener")
+                    {
+                        listeners.Add(status2);
+                    }
+                }
+            }
+            return listeners;
+        }
+
+        public virtual IEnumerator PostClick()
+        {
+            if (finiteUses)
+            {
+                count--;
+                if (count == 0)
+                {
+                    yield return Remove();
+                }
+                target.promptUpdate = true;
+            }
+            if (endTurn)
+            {
+                yield return Sequences.Wait(timing);
+                References.Player.endTurn = true;
+            }
+        }
+
+        public void ButtonCreate(StatusIconExt icon)
+        {
+            return;
+        }
+    }
+
+    public class StatusTokenApplyXListener : StatusEffectApplyX
+    {
+        public IEnumerator Run()
+        {
+            yield return Run(GetTargets());
+        }
+    }
+
+    public class StatusEffectCooldown : StatusEffectData
+    {
+        public int cooldownCount;
+
+        public override void Init()
+        {
+            OnTurnEnd += CooldownCountDown;
+        }
+
+        public bool cooldown => this.cooldownCount > 0;
+
+        public override bool RunBeginEvent()
+        {
+            ++this.target.cooldownCount;
+            this.target.PromptUpdate();
+            return false;
+        }
+
+        private IEnumerator CooldownCountDown(Entity entity)
+        {
+            StatusEffectCooldown status = this;
+            int amount = 1;
+            global::Events.InvokeStatusEffectCountDown((StatusEffectData)status, ref amount);
+            if (amount != 0)
+                    yield return (object)status.CountDown(entity, amount);
+        }
+    }
+
+    public class StatusEffectUntilTurnEnd : StatusEffectInstant
+    {
+        public override void Init()
+        {
+            base.OnCardMove += CheckPosition;
+            Events.OnBattleTurnEnd += Remove;
+        }
+
+        public void OnDestroy()
+        {
+            Events.OnBattleTurnEnd -= Remove;
+        }
+
+        public IEnumerator CheckPosition(Entity entity)
+        {
+            if (entity == target && (target.containers.Contains(References.Player.drawContainer) || target.containers.Contains(References.Player.discardContainer)))
+            {
+                yield return Remove();
+            }
+            yield break;
+        }
+
+        public virtual void Remove(int _)
+        {
+            target.StartCoroutine(Remove());
+        }
+
+        public override IEnumerator Process()
+        {
+            yield break;
+        }
+
+    }
+
+    public class StatusEffectTraitUntilTurnEnd : StatusEffectUntilTurnEnd
+    {
+        public TraitData trait;
+
+        public Entity.TraitStacks added;
+
+        public int addedAmount = 0;
+
+        public override bool HasStackRoutine => true;
+
+        public override bool HasEndRoutine => true;
+
+        public override void Init()
+        {
+            base.Init();
+        }
+
+        public override IEnumerator BeginRoutine()
+        {
+            added = target.GainTrait(trait, count, temporary: true);
+            yield return target.UpdateTraits();
+            addedAmount += count;
+            target.display.promptUpdateDescription = true;
+            target.PromptUpdate();
+        }
+
+        public override IEnumerator StackRoutine(int stacks)
+        {
+            added = target.GainTrait(trait, stacks, temporary: true);
+            yield return target.UpdateTraits();
+            addedAmount += stacks;
+            target.display.promptUpdateDescription = true;
+            target.PromptUpdate();
+        }
+
+        public override IEnumerator EndRoutine()
+        {
+            if ((bool)target)
+            {
+                if (added != null)
+                {
+                    added.count -= addedAmount;
+                    added.tempCount -= addedAmount;
+                }
+
+                addedAmount = 0;
+                yield return target.UpdateTraits(added);
+                target.display.promptUpdateDescription = true;
+                target.PromptUpdate();
+            }
+        }
+    }
+
+    public class StatusEffectBoostUntilTurnEnd : StatusEffectUntilTurnEnd
+    {
+        public override void Init()
+        {
+            base.Init();
+        }
+        public override IEnumerator Process()
+        {
+            int amount = GetAmount();
+            if ((bool)target.curveAnimator)
+            {
+                target.curveAnimator.Ping();
+            }
+
+            target.effectBonus += amount;
+            target.PromptUpdate();
+
+
+            return base.Process();
+        }
+
+        public override bool RunStackEvent(int stacks)
+        {
+            int amount = GetAmount();
+            if ((bool)target.curveAnimator)
+            {
+                target.curveAnimator.Ping();
+            }
+
+            target.effectBonus += stacks;
+            target.PromptUpdate();
+            return base.RunStackEvent(stacks);
+        }
+
+        public override void Remove(int _)
+        {
+            target.effectBonus -= GetAmount();
+            base.Remove(_);
+        }
+    }
+
+    [HarmonyPatch(typeof(FinalBossGenerationSettings), "ProcessEffects", new Type[]
+        {
+            typeof(IList<CardData>)
+        })]
+    internal static class AppendEffectSwapper
+    {
+        internal static void Prefix(FinalBossGenerationSettings __instance)
+        {
+            foreach (FinalBossEffectSwapper swapper in __instance.effectSwappers)
+            {
+                if (swapper.effect.name == "Buff Card In Deck On Kill")
+                {
+                    return;
+                }
+            }
+
+            List<FinalBossEffectSwapper> swappers = new List<FinalBossEffectSwapper>();
+            swappers.Add(CreateSwapper("When Deployed Add Mirage To Hand", "On Turn Summon Mirage", minBoost: 0, maxBoost: 0));
+            __instance.effectSwappers = __instance.effectSwappers.AddRangeToArray(swappers.ToArray()).ToArray();
+        }
+
+        internal static FinalBossEffectSwapper CreateSwapper(string effect, string replaceOption = null, string attackOption = null, int minBoost = 0, int maxBoost = 0)
+        {
+            FinalBossEffectSwapper swapper = ScriptableObject.CreateInstance<FinalBossEffectSwapper>();
+            swapper.effect = Frostknights.instance.Get<StatusEffectData>(effect);
+            swapper.replaceWithOptions = new StatusEffectData[0];
+            String s = "";
+            if (!replaceOption.IsNullOrEmpty())
+            {
+                swapper.replaceWithOptions = swapper.replaceWithOptions.Append(Frostknights.instance.Get<StatusEffectData>(replaceOption)).ToArray();
+                s += swapper.replaceWithOptions[0].name;
+            }
+            if (!attackOption.IsNullOrEmpty())
+            {
+                swapper.replaceWithAttackEffect = Frostknights.instance.Get<StatusEffectData>(attackOption);
+                s += swapper.replaceWithAttackEffect.name;
+            }
+            if (s.IsNullOrEmpty())
+            {
+                s = "Nothing";
+            }
+            swapper.boostRange = new Vector2Int(minBoost, maxBoost);
+            Debug.Log($"[Pokefrost] {swapper.effect.name} => {s} + {swapper.boostRange}");
+            return swapper;
         }
     }
 }

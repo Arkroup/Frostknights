@@ -283,4 +283,3 @@ C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostkni.4A21F2E
 C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostknights.dll
 C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostknights.pdb
 C:\Users\artem\source\repos\Frostknights\Frostknights\bin\Debug\gif2textures.dll
-C:\Users\artem\source\repos\Frostknights\Frostknights\bin\Debug\Tokens.dll
