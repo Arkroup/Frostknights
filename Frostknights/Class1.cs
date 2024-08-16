@@ -498,7 +498,7 @@ namespace Frostknights
                 })
                 );
 
-            //Status 27: While Active Taunt To Enemies
+            //Status 27: While Active Taunted To Enemies
             statusEffects.Add(
                 StatusCopy("While Active Aimless To Enemies", "While Active Taunted To Enemies")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
@@ -706,7 +706,11 @@ namespace Frostknights
                     data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
                         SStack("On Turn Apply Shell To Self", 3),
-                        SStack("When Hit Gain Teeth To Self", 2)
+                        SStack("When Hit Gain Teeth To Self", 3)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Provoke", 1)
                     };
                 })
                 );
