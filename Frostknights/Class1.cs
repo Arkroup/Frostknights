@@ -21,6 +21,7 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Events;
 using static UnityEngine.Rendering.DebugUI.Table;
+using static Building;
 
 namespace Frostknights
 {
@@ -49,8 +50,8 @@ namespace Frostknights
             yield return SceneManager.Load("CardFramesUnlocked", SceneType.Temporary);
             CardFramesUnlockedSequence sequence = GameObject.FindObjectOfType<CardFramesUnlockedSequence>();
             TextMeshProUGUI titleObject = sequence.GetComponentInChildren<TextMeshProUGUI>(true);
-            titleObject.text = $"New Companions: Snipers";
-            yield return sequence.StartCoroutine("CreateCards", sniper);
+            titleObject.text = $"New Companions: Defenders";
+            yield return sequence.StartCoroutine("CreateCards", defenders);
         }
 
         public Frostknights(string modDirectory) : base(modDirectory)
@@ -111,20 +112,8 @@ namespace Frostknights
         public static Frostknights instance;
 
         public TMP_SpriteAsset assetSprites;
+
         public override TMP_SpriteAsset SpriteAsset => assetSprites;
-        private void patchstatuses(StatusIcon icon)
-        {
-            string[] newtypes = new string[] { "burning", "trialofthorns", "blazingsunsobeisance", "opprobrium" };
-            if (newtypes.Contains(icon.type))
-            {
-                icon.SetText();
-                icon.Ping();
-                icon.onValueDown.AddListener(delegate { icon.Ping(); });
-                icon.onValueUp.AddListener(delegate { icon.Ping(); });
-                icon.afterUpdate.AddListener(icon.SetText);
-                icon.onValueDown.AddListener(icon.CheckDestroy);
-            }
-        }
 
         private void CreateModAssets()
         {
@@ -226,6 +215,62 @@ namespace Frostknights
                .WithDescription("<Free Action>: Add <card=artemys.wildfrost.frostknights.typewriter> to your hand| Click to activate\nCooldown: 6 turns")
                );
 
+            //Iron Defense Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("irondefense")
+               .WithTitle("Iron Defense")
+               .WithDescription("<End Turn>: Give <1><keyword=block> and <2><keyword=shell> to all allies| Click to activate\nCooldown: 13 turns")
+               );
+
+            //Saw of Strength Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("sawofstrength")
+               .WithTitle("Saw of Strength")
+               .WithDescription("<End Turn>: Gain <keyword=barrage> for a turn| Click to activate\nCooldown: 6 turns")
+               );
+
+            //Destreza Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("destreza")
+               .WithTitle("Destreza")
+               .WithDescription("<End Turn>: Reduce <keyword=counter> by 1| Click to activate\nCooldown: 5 turns")
+               );
+
+            //Soul of the Jungle Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("soulofthejungle")
+               .WithTitle("Soul of the Jungle")
+               .WithDescription("<End Turn>: Gain 2<keyword=block> until turn end| Click to activate\nCooldown: 7 turns")
+               );
+
+            //Order of the Icefield Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("orderoftheicefield")
+               .WithTitle("Order of the Icefield")
+               .WithDescription("<End Turn>: Gain 1<keyword=frenzy> until turn end| Click to activate\nCooldown: 8 turns")
+               );
+
+            //"Paenitete" Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("paenitete")
+               .WithTitle("\"Paenitete\"")
+               .WithDescription("<End Turn>: Apply 1<keyword=artemys.wildfrost.frostknights.burning> to enemies in row| Click to activate\nCooldown: 6 turns")
+               );
+
+            //Twilight Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("twilight")
+               .WithTitle("Twilight")
+               .WithDescription("<End Turn>: Gain <keyword=barrage> and deal damage to self on attack| Click to activate\nOne use")
+               );
+
             traits = new List<TraitDataBuilder>();
 
             //Code for traits
@@ -290,7 +335,7 @@ namespace Frostknights
             statusEffects = new List<StatusEffectDataBuilder>();
 
             //Code for status effects
-            //Status 0: Add Block to Ally Behind
+            //Status 0: Add Block to All Allies
             statusEffects.Add(
                 StatusCopy("On Turn Apply Spice To AllyBehind", "On Turn Apply Block To AllyBehind")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
@@ -617,6 +662,7 @@ namespace Frostknights
                     ((StatusEffectApplyX)data).targetMustBeAlive = false;
                     ((StatusEffectApplyX)data).queue = false;
                     ((StatusEffectApplyX)data).doPing = false;
+                    ((StatusEffectData)data).textInsert = "<{a}>damage";
                 })
                 );
 
@@ -626,6 +672,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Shroom");
+                    ((StatusEffectData)data).textInsert = "<{a}><keyword=shroom>";
                 })
                 .WithText("Apply <{a}><keyword=shroom> to all enemies")
                 );
@@ -804,8 +851,6 @@ namespace Frostknights
                 })
                 );
 
-
-
             //Status 45: Trigger When Typewriter In Row Attacks
             statusEffects.Add(
                 new StatusEffectDataBuilder(this)
@@ -827,6 +872,215 @@ namespace Frostknights
                     })
                 );
 
+            //Status 46: Iron Defense Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Iron Defense Button")
+                .WithType("irondefense")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Shell");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Allies;
+                    ((ButtonCooldown)data).maxCooldown = 13;
+                    ((ButtonCooldown)data).cooldownCount = 13;
+                })
+                );
+
+            //Status 47: Iron Defense Button Listener_1
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusTokenApplyXListener>("Iron Defense Button Listener_1")
+                .WithType("irondefense_listener")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Block");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Allies;
+                })
+                );
+
+            //Status 48: Barrage Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectTraitUntilTurnEnd>("Barrage Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .FreeModify<StatusEffectTraitUntilTurnEnd>(
+                    (data) =>
+                    {
+                        data.targetConstraints = new TargetConstraint[0];
+                    })
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTraitUntilTurnEnd)data).trait = TryGet<TraitData>("Barrage");
+                })
+                );
+
+            //Status 49: Saw of Strength Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Saw of Strength Button")
+                .WithType("sawofstrength")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Barrage Until Turn End");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 6;
+                    ((ButtonCooldown)data).cooldownCount = 4;
+                })
+                );
+
+            //Status 50: Destreza Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Destreza Button")
+                .WithType("destreza")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Max Counter");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 5;
+                    ((ButtonCooldown)data).cooldownCount = 6;
+                })
+                );
+
+            //Status 51: Gain Block Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("Gain Block Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Block");
+                })
+                );
+
+            //Status 52: Soul of the Jungle Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Soul of the Jungle Button")
+                .WithType("soulofthejungle")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Block Until Turn End");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 6;
+                    ((ButtonCooldown)data).cooldownCount = 4;
+                })
+                );
+
+            //Status 53: On Card Played Apply Apply Burning To EnemiesInRow
+            statusEffects.Add(
+                StatusCopy("On Card Played Apply Snow To EnemiesInRow", "On Card Played Apply Apply Burning To EnemiesInRow")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Burning");
+                })
+                );
+
+            //Status 54: Paenitete Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Paenitete Button")
+                .WithType("paenitete")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Burning");
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.EnemiesInRow;
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((ButtonCooldown)data).maxCooldown = 7;
+                    ((ButtonCooldown)data).cooldownCount = 5;
+                })
+                );
+
+            //Status 52: Gain Frenzy Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("Gain Frenzy Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("MultiHit");
+                })
+                );
+
+            //Status 53: Order of the Icefield Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Order of the Icefield Button")
+                .WithType("orderoftheicefield")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Frenzy Until Turn End");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 8;
+                    ((ButtonCooldown)data).cooldownCount = 6;
+                })
+                );
+
+            //Status 54: Twilight Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Twilight Button")
+                .WithType("twilight")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Temporary Barrage");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = true;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 10;
+                    ((ButtonCooldown)data).cooldownCount = 10;
+                })
+                );
+
+            //Status 55: Twilight Button Listener_1
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusTokenApplyXListener>("Twilight Button Listener_1")
+                .WithType("twilight_listener")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("On Card Played Damage To Self");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
             cards = new List<CardDataBuilder>();
 
             //Code for cards
@@ -834,7 +1088,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("nian", "Nian")
                 .SetSprites("Nian.png", "Nian BG.png")
-                .SetStats(11, 3, 7)
+                .SetStats(11, 3, 5)
                 .WithCardType("Friendly")
                 .AddPool("ClunkUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -843,9 +1097,10 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
-                        SStack("On Turn Apply Block To AllyBehind", 1)
+                        SStack("Iron Defense Button", 2),
+                        SStack("Iron Defense Button Listener_1", 1)
                     };
                 })
                 );
@@ -854,7 +1109,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("mudrock", "Mudrock")
                 .SetSprites("Mudrock.png", "Mudrock BG.png")
-                .SetStats(8, 2, 5)
+                .SetStats(10, 3, 5)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -863,14 +1118,17 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[2]
+                    data.startWithEffects = new CardData.StatusEffectStacks[4]
                     {
-                        SStack("On Block Lost Heal", 4),
-                        SStack("On Turn Heal Self", 1)
+                        SStack("On Block Lost Heal", 5),
+                        SStack("On Turn Heal Self", 1),
+                        SStack("When Hit Reduce Counter To Self", 1),
+                        SStack("On Kill Apply Block To Self", 1)
                     };
                     data.traits = new List<CardData.TraitStacks>()
                     {
-                        TStack("Splash", 2)
+                        TStack("Splash", 1),
+                        TStack("Pigheaded", 1)
                     };
                 })
                 );
@@ -879,7 +1137,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("saria", "Saria")
                 .SetSprites("Saria.png", "Saria BG.png")
-                .SetStats(10, 0, 5)
+                .SetStats(10, 2, 5)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -890,7 +1148,7 @@ namespace Frostknights
                 {
                     data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("On Turn Heal Self and Allies", 2)
+                        SStack("On Turn Heal Self and Allies", 3)
                     };
                 })
                 );
@@ -913,6 +1171,10 @@ namespace Frostknights
                         SStack("On Turn Apply Shell To Self", 3),
                         SStack("When Hit Gain Teeth To Self", 2),
                         SStack("Trial of Thorns Button", 1)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Pigheaded", 1)
                     };
                 })
                 );
@@ -1022,7 +1284,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("hoshiguma", "Hoshiguma")
                 .SetSprites("Hoshiguma.png", "Hoshiguma BG.png")
-                .SetStats(9, 2, 3)
+                .SetStats(9, 5, 4)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1031,13 +1293,10 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
-                        SStack("Teeth", 3)
-                    };
-                    data.traits = new List<CardData.TraitStacks>()
-                    {
-                        TStack("Barrage", 1)
+                        SStack("Teeth", 3),
+                        SStack("Saw of Strength Button", 1)
                     };
                 })
                 );
@@ -1046,7 +1305,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("thorns", "Thorns")
                 .SetSprites("Thorns.png", "Thorns BG.png")
-                .SetStats(5, 2, 2)
+                .SetStats(5, 2, 5)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1055,6 +1314,10 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Destreza Button", 1)
+                    };
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
                         SStack("Shroom", 2)
@@ -1070,7 +1333,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("silverAsh", "SilverAsh")
                 .SetSprites("SilverAsh.png", "SilverAsh BG.png")
-                .SetStats(5, 1, 3)
+                .SetStats(5, 0, 6)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1256,7 +1519,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("mountain", "Mountain")
                 .SetSprites("Mountain.png", "Mountain BG.png")
-                .SetStats(6, 2, 4)
+                .SetStats(6, 2, 3)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1276,7 +1539,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("blaze", "Blaze")
                 .SetSprites("Blaze.png", "Blaze BG.png")
-                .SetStats(14, 7, 5)
+                .SetStats(13, 5, 5)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1309,6 +1572,10 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Soul of the Jungle Button", 2)
+                    };
                     data.traits = new List<CardData.TraitStacks>()
                     {
                         TStack("Smackback", 1),
@@ -1341,7 +1608,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("surtr", "Surtr")
                 .SetSprites("Surtr.png", "Surtr BG.png")
-                .SetStats(5, 3, 9)
+                .SetStats(5, 3, 5)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1354,9 +1621,10 @@ namespace Frostknights
                     {
                         SStack("Burning", 3)
                     };
-                    data.traits = new List<CardData.TraitStacks>()
+                    data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
-                        TStack("Barrage", 1),
+                        SStack("Twilight Button", 1),
+                        SStack("Twilight Button Listener_1", 3)
                     };
                 })
                 );
@@ -1471,7 +1739,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("rosmontis", "Rosmontis")
                 .SetSprites("Rosmontis.png", "Rosmontis BG.png")
-                .SetStats(5, null, 2)
+                .SetStats(5, 4, 4)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1492,7 +1760,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("exusiai", "Exusiai")
                 .SetSprites("Exusiai.png", "Exusiai BG.png")
-                .SetStats(3, 1, 1)
+                .SetStats(2, 1, 1)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1541,6 +1809,10 @@ namespace Frostknights
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
                         SStack("Burning", 2)
+                    };
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Paenitete Button", 1)
                     };
                 })
                 );
@@ -1614,7 +1886,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("schwarz", "Schwarz")
                 .SetSprites("Schwarz.png", "Schwarz BG.png")
-                .SetStats(4, 5, 5)
+                .SetStats(4, 5, 4)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -1651,6 +1923,10 @@ namespace Frostknights
                     {
                         TStack("Longshot", 1)
                     };
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Order of the Icefield Button", 1)
+                    };
                 })
                 );
 
@@ -1679,7 +1955,6 @@ namespace Frostknights
         public override void Load()
         {
             if (!preLoaded) { CreateModAssets(); } //The if statement is a flourish really. It makes the 2nd load of Load-Unload-Load faster.
-            Events.OnStatusIconCreated += patchstatuses;
             base.Load();                          //Actual loading
             IconStuff();
             Events.OnCheckEntityDrag += ButtonExt.DisableDrag;
@@ -1701,13 +1976,33 @@ namespace Frostknights
 
             this.CreateButtonIcon("pozëmkaOpprobrium", ImagePath("pozëmkabutton.png").ToSprite(), "opprobrium", "counter", Color.black, new KeywordData[] { Get<KeywordData>("opprobrium") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("nianIronDefense", ImagePath("nianbutton.png").ToSprite(), "irondefense", "counter", Color.black, new KeywordData[] { Get<KeywordData>("irondefense") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("hoshigumaSawofStrength", ImagePath("hoshigumabutton.png").ToSprite(), "sawofstrength", "counter", Color.black, new KeywordData[] { Get<KeywordData>("sawofstrength") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("thornsDestreza", ImagePath("thornsbutton.png").ToSprite(), "destreza", "counter", Color.black, new KeywordData[] { Get<KeywordData>("destreza") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("gavialSouloftheJungle", ImagePath("gavialbutton.png").ToSprite(), "soulofthejungle", "counter", Color.black, new KeywordData[] { Get<KeywordData>("soulofthejungle") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("fiammetta\"Paenitete\"", ImagePath("fiammettabutton.png").ToSprite(), "paenitete", "counter", Color.black, new KeywordData[] { Get<KeywordData>("paenitete") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("typhonOrderoftheIcefield", ImagePath("typhonbutton.png").ToSprite(), "orderoftheicefield", "counter", Color.black, new KeywordData[] { Get<KeywordData>("orderoftheicefield") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("surtrTwilight", ImagePath("surtrbutton.png").ToSprite(), "twilight", "counter", Color.black, new KeywordData[] { Get<KeywordData>("twilight") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
         }
 
         public override void Unload()
         {
             base.Unload();
             Events.OnCheckEntityDrag -= ButtonExt.DisableDrag;
-            Events.OnStatusIconCreated -= patchstatuses;
             //Events.OnSceneChanged -= ArknightsPhoto;
         }
 
@@ -2395,8 +2690,16 @@ namespace Frostknights
             {
                 icon.textElement.text = string.Format(icon.textFormat, cooldownCount);
             }
+            icon.StartCoroutine(Pinging());
+        }
+
+        public IEnumerator Pinging()
+        {
+            yield return new WaitForSeconds(0.01f);
+            StatusIcon icon = target.display.FindStatusIcon(type);
             icon.Ping();
         }
+
 
         public override void Init()
         {
@@ -2421,6 +2724,8 @@ namespace Frostknights
                 }
                 return;
             }
+            target.display.promptUpdateDescription = true;
+            target.PromptUpdate();
             base.RunButtonClicked();
         }
 
@@ -2435,6 +2740,7 @@ namespace Frostknights
         {
             icon.afterUpdate.RemoveListener(icon.SetText);
             icon.afterUpdate.AddListener(SetCooldownText);
+            SetCooldownText();
         }
 
         private IEnumerator CooldownCountDown(Entity entity)
@@ -2482,6 +2788,58 @@ namespace Frostknights
         public override IEnumerator Process()
         {
             yield break;
+        }
+
+    }
+
+    public class StatusEffectApplyXUntilTurnEnd : StatusEffectApplyXInstant
+    {
+        public override bool HasStackRoutine => true;
+        public override bool HasEndRoutine => true;
+        public override void Init()
+        {
+            applyToFlags = ApplyToFlags.Self; //DO NOT CHANGE THE APPLYTOFLAGS
+
+            base.OnCardMove += CheckPosition;
+            Events.OnBattleTurnEnd += Remove;
+        }
+
+        public void OnDestroy()
+        {
+            Events.OnBattleTurnEnd -= Remove;
+        }
+
+        public override IEnumerator StackRoutine(int stacks)
+        {
+            yield return Run(GetTargets());
+        }
+
+        public IEnumerator CheckPosition(Entity entity)
+        {
+            if (entity == target && (target.containers.Contains(References.Player.drawContainer) || target.containers.Contains(References.Player.discardContainer)))
+            {
+                yield return Remove();
+            }
+            yield break;
+        }
+
+        public virtual void Remove(int _)
+        {
+            target.StartCoroutine(Remove());
+        }
+
+        public override IEnumerator EndRoutine()
+        {
+            if ((bool)target)
+            {
+                StatusEffectData effect = target.statusEffects.FirstOrDefault((e) => e.name == effectToApply.name);
+                if (effect != default(StatusEffectData))
+                {
+                    yield return effect.RemoveStacks(count, true);
+                    target.display.promptUpdateDescription = true;
+                    target.PromptUpdate();
+                }
+            }
         }
 
     }
