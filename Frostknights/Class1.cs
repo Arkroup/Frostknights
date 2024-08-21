@@ -3658,25 +3658,41 @@ namespace Frostknights
     public class StatusEffectWhileActiveXDoubleGold : StatusEffectWhileActiveX
     {
         public int storedGold = 0;
-        public override void Init()
+
+        public override bool RunBeginEvent()
         {
-            //Character player = References.Player;
-            Debug.Log("Hola jajaja");
-            //if (player.data.inventory.gold.Value != 0)
-            //    storedGold = player.data.inventory.gold.Value;
-            base.Init();
+            Character player = References.Player;
+            if ((bool)player && player.data != null && (bool)player.data.inventory)
+            {
+                storedGold = player.data.inventory.gold.Value;
+                Debug.Log("guarde oro");
+                Debug.Log($"\n {storedGold}");
+            }
+            return base.RunBeginEvent();
         }
-        public void DoubleGold()
+
+        public override bool RunEndEvent()
         {
-            Debug.Log("Chau jaja");
-            //Character player = References.Player;
-            //int newGold = player.data.inventory.gold.Value;
-            //if (newGold > storedGold)
-            //{
-            //    int goldAdded = newGold - storedGold;
-            //    storedGold = player.data.inventory.gold.Value;
-            //    Events.InvokeDropGold(goldAdded, applier.data.name, player, applier.transform.position);
-            //}
+            Debug.Log("termine evento");
+            DoubleGold();
+            return base.RunEndEvent();
+        }
+
+        public void DoubleGold()
+        { 
+            Character player = References.Player;
+            if ((bool)player && player.data != null && (bool)player.data.inventory)
+            {
+                int newGold = player.data.inventory.gold.Value;
+                if (newGold > storedGold)
+                {
+                    int goldAdded = newGold - storedGold;
+                    References.PlayerData.inventory.goldOwed += goldAdded;
+                    storedGold = player.data.inventory.gold.Value;
+                    Debug.Log("guarde oro jeje");
+                    Debug.Log($"\n {storedGold}");
+                }
+            }
         }
     }
 

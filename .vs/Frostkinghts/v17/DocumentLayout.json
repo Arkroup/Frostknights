@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\temmi\\Documents\\GitHub\\Frostkinghts\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\temmi\\documents\\github\\frostkinghts\\frostknights\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\temmi\\Documents\\GitHub\\Frostkinghts\\Frostknights\\Class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Frostknights\\Class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -24,10 +24,9 @@
               "RelativeDocumentMoniker": "Frostknights\\Class1.cs",
               "ToolTip": "C:\\Users\\temmi\\Documents\\GitHub\\Frostkinghts\\Frostknights\\Class1.cs",
               "RelativeToolTip": "Frostknights\\Class1.cs",
-              "ViewState": "AgIAAFkOAAAAAAAAAAAzwFsOAAAlAAAAAAAAAA==",
+              "ViewState": "AgIAADsOAAAAAAAAAAAAAFEOAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T20:35:14.58Z",
-              "IsPinned": true,
+              "WhenOpened": "2024-08-21T02:14:15.157Z",
               "EditorCaption": ""
             },
             {

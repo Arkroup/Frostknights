@@ -283,3 +283,13 @@ C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostkni.4A21F2E
 C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostknights.dll
 C:\Users\artem\source\repos\Frostknights\Frostknights\obj\Debug\Frostknights.pdb
 C:\Users\artem\source\repos\Frostknights\Frostknights\bin\Debug\gif2textures.dll
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\obj\Debug\Frostknights.dll
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\obj\Debug\Frostknights.pdb
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\bin\Debug\Frostknights.dll
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\bin\Debug\Frostknights.pdb
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\bin\Debug\Newtonsoft.Json.dll
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\bin\Debug\VFX_Tests.pdb
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\bin\Debug\WildfrostHopeMod.Utils.pdb
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\obj\Debug\Frostknights.csproj.AssemblyReference.cache
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\obj\Debug\Frostknights.csproj.CoreCompileInputs.cache
+C:\Users\temmi\Documents\GitHub\Frostkinghts\Frostknights\obj\Debug\Frostkni.4A21F2E2.Up2Date
