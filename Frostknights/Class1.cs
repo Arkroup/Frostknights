@@ -24,6 +24,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 using static Building;
 using System.Threading;
 using Rewired;
+using static Steamworks.InventoryItem;
 
 namespace Frostknights
 {
@@ -1452,7 +1453,7 @@ namespace Frostknights
                 })
                 );
 
-            //Status 74: On Kill Apply Attack To FrontAlly
+            //Status 75: On Turn Heal AllyBehind
             statusEffects.Add(
                 StatusCopy("On Turn Heal Allies", "On Turn Heal AllyBehind")
                 .WithText("Restore <{a}><keyword=health> to ally behind")
@@ -1462,7 +1463,7 @@ namespace Frostknights
                 })
                 );
 
-            //Status 74: When Deployed Apply Heal To Allies
+            //Status 76: When Deployed Apply Heal To Allies
             statusEffects.Add(
                 StatusCopy("When Deployed Apply Ink To Allies", "When Deployed Apply Heal To Allies")
                 .WithText("When deployed, restore <{a}><keyword=health> to all allies")
@@ -1470,6 +1471,18 @@ namespace Frostknights
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Heal (No Ping)");
                 })
+                );
+
+            //Status 77: While Active Double Gold
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectWhileActiveXDoubleGold>("While Active Double Gold")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .WithText("While Active Double Gold Earned")
                 );
 
             cards = new List<CardDataBuilder>();
@@ -2514,10 +2527,11 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[2]
+                    data.startWithEffects = new CardData.StatusEffectStacks[3]
                     {
                         SStack("Heal Self Based On Damage Dealt", 1),
-                        SStack("Originite Prime Button", 5)
+                        SStack("Originite Prime Button", 5),
+                        SStack("While Active Double Gold", 1)
                     };
                 })
                 );
@@ -3643,9 +3657,26 @@ namespace Frostknights
 
     public class StatusEffectWhileActiveXDoubleGold : StatusEffectWhileActiveX
     {
-        public override IEnumerator Activate()
+        public int storedGold = 0;
+        public override void Init()
         {
-
+            //Character player = References.Player;
+            Debug.Log("Hola jajaja");
+            //if (player.data.inventory.gold.Value != 0)
+            //    storedGold = player.data.inventory.gold.Value;
+            base.Init();
+        }
+        public void DoubleGold()
+        {
+            Debug.Log("Chau jaja");
+            //Character player = References.Player;
+            //int newGold = player.data.inventory.gold.Value;
+            //if (newGold > storedGold)
+            //{
+            //    int goldAdded = newGold - storedGold;
+            //    storedGold = player.data.inventory.gold.Value;
+            //    Events.InvokeDropGold(goldAdded, applier.data.name, player, applier.transform.position);
+            //}
         }
     }
 
