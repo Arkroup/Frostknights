@@ -424,6 +424,14 @@ namespace Frostknights
                .WithDescription("<Free Action>: Add <card=artemys.wildfrost.frostknights.fartoothTargeting> to your hand| Click to activate\nnCooldown: 4 turns", SystemLanguage.English)
                );
 
+            //Spirit Burst Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("spiritburst")
+               .WithTitle("Spirit Burst")
+               .WithDescription("<End Turn>: Gain 3<keyword=frenzy> and target random enemies for a turn| Click to activate\nnCooldown: 12 turns", SystemLanguage.English)
+               );
+
             traits = new List<TraitDataBuilder>();
 
             //Code for traits
@@ -606,7 +614,7 @@ namespace Frostknights
                 })
                 );
 
-            //Status 11: Damage Adjacent Enemies
+            //Status 11: Hit All Adjacent Enemies
             statusEffects.Add(
                 new StatusEffectDataBuilder(this)
                 .Create<StatusEffectInstantSplashDamage>("Hit All Adjacent Enemies")
@@ -620,6 +628,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Hit All Adjacent Enemies");
+                    ((StatusEffectApplyXOnHit)data).postHit = true;
                 })
                 );
 
@@ -1406,7 +1415,7 @@ namespace Frostknights
             //Status 68: On Turn Reduce Attack To Self
             statusEffects.Add(
                 StatusCopy("On Turn Apply Attack To Self", "On Turn Reduce Attack To Self")
-                .WithText("Lose <-{a}><keyword=attack>", SystemLanguage.English)
+                .WithText("Lose <{a}><keyword=attack>", SystemLanguage.English)
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Attack");
@@ -1812,6 +1821,88 @@ namespace Frostknights
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 4;
                     ((ButtonCooldown)data).cooldownCount = 4;
+                })
+                );
+
+            //Status 98: On Kill Apply Reduce Cooldown To Self
+            statusEffects.Add(
+                StatusCopy("On Kill Apply Attack To Self", "On Kill Apply Reduce Cooldown To Self")
+                .WithText("Count down <keyword=artemys.wildfrost.frostknights.cooldown> by <{a}> on kill", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Cooldown");
+                })
+                );
+
+            //Status 99: Hit Truly Random Target
+            statusEffects.Add(
+                StatusCopy("Hit Random Target", "Hit Truly Random Target")
+                .WithText("Hits a random target")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectChangeTargetMode)data).targetMode = ScriptableObject.CreateInstance<TargetModeTrulyRandom>();
+                    ((StatusEffectData)data).textKey = new UnityEngine.Localization.LocalizedString();
+                })
+                );
+
+            //Status 100: Spirit Burst Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Spirit Burst Button")
+                .WithType("spiritburst")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Frenzy Until Turn End");
+                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 12;
+                    ((ButtonCooldown)data).cooldownCount = 12;
+                })
+                );
+
+            //Status 101: Spirit Burst Button Listener_1
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusTokenApplyXListener>("Spirit Burst Button Listener_1")
+                .WithType("spiritburst_listener")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Hit Truly Random Target");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
+            //Status 102: On Card Played Reduce Counter To Allies Equal To Gold Factor 0.015
+            statusEffects.Add(
+                StatusCopy("On Card Played Reduce Counter To Allies", "On Card Played Reduce Counter To Allies Equal To Gold Factor 0.015")
+                .WithText("Count down all allies' <keyword=counter> by <1> for each <75><keyword=blings> you have")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).scriptableAmount = new Func<ScriptableGold>(() => {
+                        var script = ScriptableObject.CreateInstance<ScriptableGold>();
+                        script.factor = 0.015f;
+                        script.name = "75 Gold";
+                        return script;
+                    })();
+                })
+                );
+
+            //Status 103: On Card Played Reduce Counter To Ally Equal To Gold Factor 0.015
+            statusEffects.Add(
+                StatusCopy("On Card Played Reduce Counter To Allies", "On Card Played Reduce Counter To Ally Equal To Gold Factor 0.015")
+                .WithText("Count down <keyword=counter> by <1> for each <75><keyword=blings> you have")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Target;
+                    ((StatusEffectApplyX)data).scriptableAmount = new Func<ScriptableGold>(() => {
+                        var script = ScriptableObject.CreateInstance<ScriptableGold>();
+                        script.factor = 0.015f;
+                        script.name = "75 Gold";
+                        return script;
+                    })();
                 })
                 );
 
@@ -2690,6 +2781,21 @@ namespace Frostknights
                 })
                 );
 
+            //Test Card
+            cards.Add(
+                new CardDataBuilder(this).CreateUnit("test", "Test")
+                .SetSprites("Test.png", "Test BG.png")
+                .SetStats(8, 2, 2)
+                .WithCardType("Summoned")
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.attackEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Hit All Adjacent Enemies", 1)
+                    };
+                })
+                );
+
             //Code for items
             //Vanilla Soda Item 1
             cards.Add(
@@ -2950,7 +3056,7 @@ namespace Frostknights
                 .CanPlayOnFriendly(true)
                 .CanShoveToOtherRow(true)
                 .NeedsTarget(true)
-                .WithText("Can only target allies")
+                .WithText("Set <keyword=health> to <8>. Can only target allies")
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
                     data.attackEffects = new CardData.StatusEffectStacks[2]
@@ -3019,6 +3125,51 @@ namespace Frostknights
                 .CanPlayOnHand(true)
                 .CanShoveToOtherRow(true)
                 .NeedsTarget(true)
+                );
+
+            //Golden Chalice Item 16
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("goldenChalice", "Golden Chalice", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Golden Chalice.png", "Golden Chalice BG.png")
+                .SetStats(null, null)
+                .WithValue(60)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanPlayOnHand(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(false)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("On Card Played Reduce Counter To Allies Equal To Gold Factor 0.015", 1)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Consume", 1)
+                    };
+                })
+                );
+
+            //Coin Operated Toy Item 17
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("coinOperatedToy", "Coin Operated Toy", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Coin Operated Toy.png", "Coin Operated Toy BG.png")
+                .SetStats(null, null)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.attackEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("On Card Played Reduce Counter To Ally Equal To Gold Factor 0.015", 1)
+                    };
+                })
                 );
 
             //Code for leaders
@@ -3101,6 +3252,34 @@ namespace Frostknights
                 })
                 );
 
+            //Amiya leader
+            cards.Add(
+                new CardDataBuilder(this).CreateUnit("amiya", "Amiya")
+                .SetSprites("Amiya.png", "Amiya BG.png")
+                .SetStats(5, 5, 4)
+                .WithCardType("Leader")
+                .FreeModify(
+                (data) =>
+                {
+                    data.createScripts = new CardScript[]
+                    {
+                        GiveUpgrade(),
+                        AddRandomHealth(-1,3),
+                        AddRandomCounter(-1,1),
+                        AddRandomDamage(-1,1),
+                    };
+                })
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[3]
+                    {
+                        SStack("On Kill Apply Reduce Cooldown To Self", 2),
+                        SStack("Spirit Burst Button", 2),
+                        SStack("Spirit Burst Button Listener_1", 1)
+                    };
+                })
+                );
+
             tribes = new List<ClassDataBuilder>();
 
             //Code for Tribes
@@ -3115,7 +3294,7 @@ namespace Frostknights
                     UnityEngine.Object.DontDestroyOnLoad(gameObject);
                     gameObject.name = "Player (Rhodes)";
                     data.characterPrefab = gameObject.GetComponent<Character>();
-                    data.leaders = DataList<CardData>("kal'tsit", "closure", "doctor");
+                    data.leaders = DataList<CardData>("kal'tsit", "closure", "doctor", "amiya");
                     Inventory inventory = new Inventory();
                     inventory.deck.list = DataList<CardData>("vanillaSoda", "worn-outGroupPhoto", "rustedRazor", "rustedRazor", "rustedRazor", "rustedRazor", "rustedRazor", "lancet-2", "vinecreepMortarGunner").ToList(); //Some odds and ends
                     data.startingInventory = inventory;
@@ -3225,6 +3404,9 @@ namespace Frostknights
 
             this.CreateButtonIcon("fartoothFeathershineArrows", ImagePath("fartoothbutton.png").ToSprite(), "feathershinearrows", "counter", Color.black, new KeywordData[] { Get<KeywordData>("feathershinearrows") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("amiyaSpiritBurst", ImagePath("amiyabutton.png").ToSprite(), "spiritburst", "counter", Color.black, new KeywordData[] { Get<KeywordData>("spiritburst") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
         }
 
         public override void Unload()
@@ -3267,1152 +3449,6 @@ namespace Frostknights
                 default:
                     return null;
             }
-        }
-    }
-
-    public class StatusEffectInstantSplashDamage : StatusEffectInstant
-    {
-        public override IEnumerator Process()
-        {
-            // set this up for later
-            Routine.Clump clump = new();
-            List<Entity> targets = new();
-
-            if (TryGetVertical(this.target, out List<Entity> otherEntities))
-                targets.AddRange(otherEntities);
-
-            if (TryGetHorizontal(this.target, out otherEntities))
-                targets.AddRange(otherEntities);
-
-            foreach (Entity entity in targets)
-            {
-                // this.applier is needed to attribute the kill properly
-                Hit hit = new Hit(this.applier, entity, count)
-                {
-                    canRetaliate = false,       // is an indirect hit
-                    countsAsHit = true,         // is a damaging hit
-                };
-                clump.Add(hit.Process());       // process all the hits at once
-            }
-
-            yield return clump.WaitForEnd();
-
-            yield return base.Process();        // calls this.Remove()
-        }
-        public List<int> GetColIndices(Entity entity)
-        {
-            List<int> indices = [-1];
-            if (entity.owner)
-            {
-                foreach (CardContainer row in References.Battle.GetRows(entity.owner))
-                {
-                    if (row is not CardSlotLane lane)
-                        continue;
-                    // the row is a proper lane of cards
-
-                    foreach (var slot in lane.slots)
-                    {
-                        // if the entity is alive, check where it is
-                        if (entity.actualContainers.Contains(slot))
-                            indices.Add(lane.slots.IndexOf(slot));
-
-                        // if the entity died, check where it was
-                        else if (entity.preActualContainers?.Contains(slot) ?? false)
-                            indices.Add(lane.slots.IndexOf(slot));
-                    }
-                }
-            }
-            indices = indices.Distinct().Where(index => index >= 0).ToList();
-
-            return indices;
-        }
-
-        public bool TryGetVertical(Entity entity, out List<Entity> otherEntities)
-        {
-            otherEntities = [];
-
-            List<int> indices = GetColIndices(entity);
-            if (entity.owner)
-            {
-                foreach (CardContainer row in References.Battle.GetRows(entity.owner))
-                {
-                    if (row is not CardSlotLane lane)
-                        continue;
-                    // the row is a proper lane of cards
-
-                    foreach (int index in indices)
-                    {
-                        if (lane.ChildCount < index)
-                            break;
-                        // the lane has at least (index) many slots (variable due to mods)
-
-                        otherEntities.Add(lane[index]);
-                        // lane[index] = the entity in the indexed slot, null if empty
-                    }
-                }
-            }
-            otherEntities = otherEntities.Distinct().Where(e => e != null && e != entity).ToList();
-
-            return otherEntities.Any();
-        }
-        public bool TryGetHorizontal(Entity entity, out List<Entity> otherEntities)
-        {
-            otherEntities = [];
-            if (entity.owner)
-            {
-                foreach (CardContainer row in References.Battle.GetRows(entity.owner))
-                {
-                    if (!row.Contains(entity))
-                        continue;
-                    // the entity is in this row
-
-                    if (row is not CardSlotLane lane)
-                        continue;
-                    // the row is a proper lane of cards
-
-                    int index = lane.IndexOf(entity);
-                    if (index - 1 >= 0)
-                        otherEntities.Add(lane[index - 1]);
-
-                    if (index + 1 < lane.ChildCount)
-                        otherEntities.Add(lane[index + 1]);
-                    // lane[index] = the entity in the indexed slot, null if empty
-                }
-            }
-            otherEntities = otherEntities.Distinct().Where(e => e != null && e != entity).ToList();
-
-            return otherEntities.Any();
-        }
-    }
-
-    public class StatusEffectInstantCountUp : StatusEffectInstant
-    {
-        public override IEnumerator Process()
-        {
-            Hit hit = new Hit(this.applier, this.target, 0)
-            {
-                countsAsHit = false,
-                counterReduction = -this.GetAmount()
-            };
-            yield return hit.Process();
-            yield return base.Process();
-            yield break;
-        }
-    }
-
-    public class TargetModeTaunt : TargetMode
-    {
-        public override Entity[] GetPotentialTargets(Entity entity, Entity target, CardContainer targetContainer)
-        {
-            HashSet<Entity> hashSet = new HashSet<Entity>();
-            hashSet.AddRange(from e in entity.GetAllEnemies()
-                             where (bool)e && e.enabled && e.alive && e.canBeHit && HasTaunt(e)
-                             select e);
-            if (hashSet.Count <= 0)
-            {
-                TargetModeBasic targetModeBasic = new TargetModeBasic();
-                return targetModeBasic.GetPotentialTargets(entity, target, targetContainer);
-            }
-
-            return hashSet.ToArray();
-        }
-
-        public override Entity[] GetSubsequentTargets(Entity entity, Entity target, CardContainer targetContainer)
-        {
-            return GetTargets(entity, target, targetContainer);
-        }
-
-        public bool HasTaunt(Entity entity)
-        {
-            foreach (CardData.TraitStacks t in entity.data.traits)
-            {
-                if (t.data.name == "artemys.wildfrost.frostknights.Taunt")
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-    }
-
-    public class TargetModeProvoke : TargetMode
-    {
-        public override Entity[] GetPotentialTargets(Entity entity, Entity target, CardContainer targetContainer)
-        {
-            HashSet<Entity> hashSet = new HashSet<Entity>();
-            hashSet.AddRange(from e in entity.GetAllEnemies()
-                             where (bool)e && e.enabled && e.alive && e.canBeHit && HasProvoke(e)
-                             select e);
-            if (hashSet.Count <= 0)
-            {
-                TargetModeBasic targetModeBasic = new TargetModeBasic();
-                return targetModeBasic.GetPotentialTargets(entity, target, targetContainer);
-            }
-
-            return hashSet.ToArray();
-        }
-
-        public override Entity[] GetSubsequentTargets(Entity entity, Entity target, CardContainer targetContainer)
-        {
-            return GetTargets(entity, target, targetContainer);
-        }
-
-        public bool HasProvoke(Entity entity)
-        {
-            foreach (Entity.TraitStacks t in entity.traits)
-            {
-                if (t.data.name == "artemys.wildfrost.frostknights.Provoke")
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-    }
-
-    public class StatusEffectBurning : StatusEffectData
-    {
-        public CardAnimation buildupAnimation;
-
-        public bool burning;
-
-        public override void Init()
-        {
-            Events.OnEntityHit += EntityHit;
-        }
-
-        public void OnDestroy()
-        {
-            Events.OnEntityHit -= EntityHit;
-        }
-
-        public void EntityHit(Hit hit)
-        {
-            if (hit.target == target && hit.Offensive && hit.canRetaliate)
-            {
-                Check();
-            }
-        }
-
-        public void Check()
-        {
-            if (count > 0 && !burning)
-            {
-                ActionQueue.Stack(new ActionSequence(DealDamage())
-                {
-                    fixedPosition = true,
-                    priority = eventPriority,
-                    note = "Burned"
-                });
-                ActionQueue.Stack(new ActionSequence(Clear())
-                {
-                    fixedPosition = true,
-                    priority = eventPriority,
-                    note = "Clear Burns"
-                });
-                burning = true;
-            }
-        }
-
-        public IEnumerator DealDamage()
-        {
-            if (!this || !target || !target.alive)
-            {
-                yield break;
-            }
-
-            HashSet<Entity> targets = new HashSet<Entity>();
-            CardContainer[] containers = target.containers;
-            foreach (CardContainer collection in containers)
-            {
-                targets.AddRange(collection);
-            }
-
-            if ((bool)buildupAnimation)
-            {
-                yield return buildupAnimation.Routine(target);
-            }
-
-            Entity damager = GetDamager();
-            Routine.Clump clump = new Routine.Clump();
-            foreach (Entity item in targets)
-            {
-                Hit hit = new Hit(damager, item, count)
-                {
-                    damageType = "burning"
-                };
-                clump.Add(hit.Process());
-            }
-            SfxSystem.OneShot("event:/sfx/status/overburn_damage");
-            clump.Add(Sequences.Wait(0.5f));
-            yield return clump.WaitForEnd();
-        }
-
-        public IEnumerator Clear()
-        {
-            if ((bool)this && (bool)target && target.alive)
-            {
-                yield return Remove();
-                burning = false;
-            }
-        }
-    }
-
-    public static class Ext
-    {
-        public static GameObject CreateIcon(this WildfrostMod mod, string name, Sprite sprite, string type, string copyTextFrom, Color textColor, KeywordData[] keys)
-        {
-            GameObject gameObject = new GameObject(name);
-            UnityEngine.Object.DontDestroyOnLoad(gameObject);
-            gameObject.SetActive(false);
-            StatusIconExt icon = gameObject.AddComponent<StatusIconExt>();
-            Dictionary<string, GameObject> cardIcons = CardManager.cardIcons;
-            if (!copyTextFrom.IsNullOrEmpty())
-            {
-                GameObject text = cardIcons[copyTextFrom].GetComponentInChildren<TextMeshProUGUI>().gameObject.InstantiateKeepName();
-                text.transform.SetParent(gameObject.transform);
-                icon.textElement = text.GetComponent<TextMeshProUGUI>();
-                icon.textColour = textColor;
-                icon.textColourAboveMax = textColor;
-                icon.textColourBelowMax = textColor;
-            }
-            icon.onCreate = new UnityEngine.Events.UnityEvent();
-            icon.onDestroy = new UnityEngine.Events.UnityEvent();
-            icon.onValueDown = new UnityEventStatStat();
-            icon.onValueUp = new UnityEventStatStat();
-            icon.afterUpdate = new UnityEngine.Events.UnityEvent();
-            UnityEngine.UI.Image image = gameObject.AddComponent<UnityEngine.UI.Image>();
-            image.sprite = sprite;
-            CardHover cardHover = gameObject.AddComponent<CardHover>();
-            cardHover.enabled = false;
-            cardHover.IsMaster = false;
-            CardPopUpTarget cardPopUp = gameObject.AddComponent<CardPopUpTarget>();
-            cardPopUp.keywords = keys;
-            cardHover.pop = cardPopUp;
-            RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.anchorMax = Vector2.zero;
-            rectTransform.sizeDelta *= 0.01f;
-            gameObject.SetActive(true);
-            icon.type = type;
-            cardIcons[type] = gameObject;
-
-            return gameObject;
-        }
-        public static GameObject CreateButtonIcon(this WildfrostMod mod, string name, Sprite sprite, string type, string copyTextFrom, Color textColor, KeywordData[] keys)
-        {
-            GameObject gameObject = new GameObject(name);
-            UnityEngine.Object.DontDestroyOnLoad(gameObject);
-            gameObject.SetActive(false);
-            StatusIconExt icon = gameObject.AddComponent<StatusIconExt>();
-            Dictionary<string, GameObject> cardIcons = CardManager.cardIcons;
-            icon.animator = gameObject.AddComponent<ButtonAnimator>();
-            icon.button = gameObject.AddComponent<ButtonExt>();
-            icon.animator.button = icon.button;
-            if (!copyTextFrom.IsNullOrEmpty())
-            {
-                GameObject text = cardIcons[copyTextFrom].GetComponentInChildren<TextMeshProUGUI>().gameObject.InstantiateKeepName();
-                text.transform.SetParent(gameObject.transform);
-                icon.textElement = text.GetComponent<TextMeshProUGUI>();
-                icon.textColour = textColor;
-                icon.textColourAboveMax = textColor;
-                icon.textColourBelowMax = textColor;
-            }
-            icon.onCreate = new UnityEngine.Events.UnityEvent();
-            icon.onDestroy = new UnityEngine.Events.UnityEvent();
-            icon.onValueDown = new UnityEventStatStat();
-            icon.onValueUp = new UnityEventStatStat();
-            icon.afterUpdate = new UnityEngine.Events.UnityEvent();
-            UnityEngine.UI.Image image = gameObject.AddComponent<UnityEngine.UI.Image>();
-            image.sprite = sprite;
-            CardHover cardHover = gameObject.AddComponent<CardHover>();
-            cardHover.enabled = false;
-            cardHover.IsMaster = false;
-            CardPopUpTarget cardPopUp = gameObject.AddComponent<CardPopUpTarget>();
-            cardPopUp.keywords = keys;
-            cardHover.pop = cardPopUp;
-            RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.anchorMax = Vector2.zero;
-            rectTransform.sizeDelta *= 0.008f;
-            gameObject.SetActive(true);
-            icon.type = type;
-            cardIcons[type] = gameObject;
-            gameObject.AddComponent<UINavigationItem>();
-
-            return gameObject;
-        }
-        public static T CreateStatusButton<T>(this WildfrostMod mod, string name, string type, string iconGroup = "counter") where T : StatusEffectData
-        {
-            T status = ScriptableObject.CreateInstance<T>();
-            status.name = name;
-            status.targetConstraints = new TargetConstraint[0];
-            status.type = type;
-            status.isStatus = true;
-            status.iconGroupName = iconGroup;
-            status.visible = true;
-            status.stackable = false;
-            return status;
-        }
-        public static T ApplyX<T>(this T t, StatusEffectData effectToApply, StatusEffectApplyX.ApplyToFlags flags) where T : StatusEffectApplyX
-        {
-            t.effectToApply = effectToApply;
-            t.applyToFlags = flags;
-            return t;
-        }
-        public static T Register<T>(this T status, WildfrostMod mod) where T : StatusEffectData
-        {
-            status.ModAdded = mod;
-            AddressableLoader.AddToGroup<StatusEffectData>("StatusEffectData", status);
-            return status;
-        }
-    }
-
-    public class ButtonExt : Button
-    {
-        internal StatusIconExt Icon => GetComponent<StatusIconExt>();
-
-        internal static ButtonExt dragBlocker = null;
-
-        internal Entity Entity => Icon?.target;
-
-        public override void OnPointerEnter(PointerEventData eventData)
-        {
-            dragBlocker = this;
-        }
-
-        public override void OnPointerExit(PointerEventData eventData)
-        {
-            DisableDragBlocking();
-        }
-
-        public void DisableDragBlocking()
-        {
-            if (dragBlocker == this)
-            {
-                dragBlocker = null;
-            }
-        }
-
-        public static void DisableDrag(ref Entity arg0, ref bool arg1)
-        {
-            if (dragBlocker == null || arg0 != dragBlocker.Entity)
-            {
-                return;
-            }
-            arg1 = false;
-        }
-    }
-
-    public interface IStatusToken
-    {
-        void ButtonCreate(StatusIconExt icon);
-
-        void RunButtonClicked();
-
-        IEnumerator ButtonClicked();
-
-
-    }
-
-    public class StatusIconExt : StatusIcon
-    {
-        public ButtonAnimator animator;
-        public ButtonExt button;
-        private IStatusToken effectToken;
-
-        public override void Assign(Entity entity)
-        {
-            base.Assign(entity);
-            SetText();
-            onValueDown.AddListener(delegate { Ping(); });
-            onValueUp.AddListener(delegate { Ping(); });
-            afterUpdate.AddListener(SetText);
-            onValueDown.AddListener(CheckDestroy);
-
-            StatusEffectData effect = entity.FindStatus(type);
-            if (effect is IStatusToken effect2)
-            {
-                effectToken = effect2;
-                effect2.ButtonCreate(this);
-                button.onClick.AddListener(effectToken.RunButtonClicked);
-                onDestroy.AddListener(DisableDragBlocker);
-            }
-        }
-
-        public void DisableDragBlocker()
-        {
-            button.DisableDragBlocking();
-        }
-    }
-
-    public class StatusTokenApplyX : StatusEffectApplyX, IStatusToken
-    {
-        //Standard Code I wish I can put into IStatusToken
-        [Flags]
-        public enum PlayFromFlags
-        {
-            None = 0,
-            Board = 1,
-            Hand = 2,
-            Draw = 4,
-            Discard = 8
-        }
-
-        public PlayFromFlags playFrom = PlayFromFlags.Board | PlayFromFlags.Hand;
-        public bool finiteUses = false;
-        public bool oncePerTurn = false;
-        protected bool unusedThisTurn = true;
-        public bool endTurn = false;
-        public float timing = 0.2f;
-
-        public override void Init()
-        {
-            base.Init();
-        }
-
-        public override bool RunTurnStartEvent(Entity entity)
-        {
-            if (entity.data.cardType.name == "Leader")
-            {
-                unusedThisTurn = true;
-            }
-            return base.RunTurnStartEvent(entity);
-        }
-
-        public virtual void RunButtonClicked()
-        {
-            if ((bool)References.Battle && References.Battle.phase == Battle.Phase.Play
-                && CorrectPlace()
-                && !target.IsSnowed
-                && target.owner == References.Player
-                && !target.silenced
-                && (!oncePerTurn || unusedThisTurn))
-
-            {
-                target.StartCoroutine(ButtonClicked());
-                unusedThisTurn = false;
-            }
-
-            if ((bool)target.IsSnowed || target.silenced)
-            {
-                NoTargetTextSystem noText = GameSystem.FindObjectOfType<NoTargetTextSystem>();
-                if (noText != null)
-                {
-                    TMP_Text textElement = noText.textElement;
-                    if ((bool)target.IsSnowed)
-                    {
-                        textElement.text = "Snowed!";
-                    }
-                    if ((bool)target.silenced)
-                    {
-                        textElement.text = "Inked!";
-                    }
-                    noText.PopText(target.transform.position);
-                }
-            }
-
-        }
-
-        public bool CheckFlag(PlayFromFlags flag) => (playFrom & flag) != 0;
-
-        public virtual bool CorrectPlace()
-        {
-            if (CheckFlag(PlayFromFlags.Board) && Battle.IsOnBoard(target))
-            {
-                return true;
-            }
-            if (CheckFlag(PlayFromFlags.Hand) && References.Player.handContainer.Contains(target))
-            {
-                return true;
-            }
-            if (CheckFlag(PlayFromFlags.Draw) && target.preContainers.Contains(References.Player.drawContainer))
-            {
-                return true;
-            }
-            if (CheckFlag(PlayFromFlags.Discard) && target.preContainers.Contains(References.Player.discardContainer))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        //Main Code
-        public int fixedAmount = 0;
-        public int hitDamage = 0;
-
-        public IEnumerator ButtonClicked()
-        { 
-            if (hitDamage != 0)
-            {
-                List<Entity> enemies = GetTargets();
-                int trueAmount = (hitDamage == -1) ? count : hitDamage;
-                foreach (Entity enemy in enemies)
-                {
-                    if (enemy.IsAliveAndExists())
-                    {
-                        Hit hit = new Hit(target, enemy, trueAmount);
-                        hit.canRetaliate = false;
-                        yield return hit.Process();
-                    }
-
-                }
-
-            }
-            yield return Run(GetTargets(), fixedAmount);
-            List<StatusTokenApplyXListener> listeners = FindListeners();
-            foreach (StatusTokenApplyXListener listener in listeners)
-            {
-                yield return listener.Run();
-            }
-            target.display.promptUpdateDescription = true;
-            yield return PostClick();
-        }
-
-        public List<StatusTokenApplyXListener> FindListeners()
-        {
-            List<StatusTokenApplyXListener> listeners = new List<StatusTokenApplyXListener>();
-            foreach (StatusEffectData status in target.statusEffects)
-            {
-                if (status is StatusTokenApplyXListener status2)
-                {
-                    if (status2.type == type + "_listener")
-                    {
-                        listeners.Add(status2);
-                    }
-                }
-            }
-            return listeners;
-        }
-
-        public virtual IEnumerator PostClick()
-        {
-            if (finiteUses)
-            {
-                count--;
-                if (count == 0)
-                {
-                    yield return Remove();
-                }
-                target.promptUpdate = true;
-            }
-            if (endTurn)
-            {
-                yield return Sequences.Wait(timing);
-                References.Player.endTurn = true;
-            }
-        }
-
-        public virtual void ButtonCreate(StatusIconExt icon)
-        {
-            return;
-        }
-    }
-
-    public class StatusTokenApplyXListener : StatusEffectApplyX
-    {
-        public IEnumerator Run()
-        {
-            yield return Run(GetTargets());
-        }
-    }
-
-    public class ButtonCooldown : StatusTokenApplyX
-    {
-        public int cooldownCount;
-        public int maxCooldown;
-
-        public void SetCooldownText()
-        {
-            if (target.display.FindStatusIcon(type) is not { } icon) return;
-            if (cooldownCount <= 0)
-            {
-                icon.textElement.text = "";
-            }
-            else
-            {
-                icon.textElement.text = string.Format(icon.textFormat, cooldownCount);
-            }
-            icon.StartCoroutine(Pinging());
-        }
-
-        public IEnumerator Pinging()
-        {
-            yield return new WaitForSeconds(0.01f);
-            StatusIcon icon = target.display.FindStatusIcon(type);
-            icon.Ping();
-        }
-
-
-        public override void Init()
-        {
-            OnTurnStart += CooldownCountDown;
-        }
-
-        public bool cooldown => this.cooldownCount > 0;
-
-        public override void RunButtonClicked()
-        {
-            if (cooldown)
-            {
-                NoTargetTextSystem noText = GameSystem.FindObjectOfType<NoTargetTextSystem>();
-                if (noText != null)
-                {
-                    TMP_Text textElement = noText.textElement;
-                    if (cooldown)
-                    {
-                        textElement.text = $"On Cooldown! ({cooldownCount} turns)!";
-                    }
-                    noText.PopText(target.transform.position);
-                }
-                return;
-            }
-            target.display.promptUpdateDescription = true;
-            target.PromptUpdate();
-            base.RunButtonClicked();
-        }
-
-        public override IEnumerator PostClick()
-        {
-            cooldownCount = maxCooldown;
-            SetCooldownText();
-            yield return base.PostClick();
-        }
-
-        public override void ButtonCreate(StatusIconExt icon)
-        {
-            icon.afterUpdate.RemoveListener(icon.SetText);
-            icon.afterUpdate.AddListener(SetCooldownText);
-            SetCooldownText();
-        }
-
-        private IEnumerator CooldownCountDown(Entity entity)
-        {
-            if (entity != target)
-            {
-                yield break;
-            }
-            ButtonCooldown status = this;
-            int amount = 1;
-            global::Events.InvokeStatusEffectCountDown((StatusEffectData)status, ref amount);
-            if (amount != 0 && Battle.IsOnBoard(target))
-                cooldownCount -= amount;
-            SetCooldownText();
-        }
-    }
-
-    public class StatusEffectUntilTurnEnd : StatusEffectInstant
-    {
-        public override void Init()
-        {
-            base.OnCardMove += CheckPosition;
-            Events.OnBattleTurnEnd += Remove;
-        }
-
-        public void OnDestroy()
-        {
-            Events.OnBattleTurnEnd -= Remove;
-        }
-
-        public IEnumerator CheckPosition(Entity entity)
-        {
-            if (entity == target && (target.containers.Contains(References.Player.drawContainer) || target.containers.Contains(References.Player.discardContainer)))
-            {
-                yield return Remove();
-            }
-            yield break;
-        }
-
-        public virtual void Remove(int _)
-        {
-            target.StartCoroutine(Remove());
-        }
-
-        public override IEnumerator Process()
-        {
-            yield break;
-        }
-
-    }
-
-    public class StatusEffectApplyXUntilTurnEnd : StatusEffectApplyXInstant
-    {
-        public override bool HasStackRoutine => true;
-        public override bool HasEndRoutine => true;
-        public override void Init()
-        {
-            applyToFlags = ApplyToFlags.Self; //DO NOT CHANGE THE APPLYTOFLAGS
-
-            base.OnCardMove += CheckPosition;
-            Events.OnBattleTurnEnd += Remove;
-        }
-
-        public void OnDestroy()
-        {
-            Events.OnBattleTurnEnd -= Remove;
-        }
-
-        public override IEnumerator StackRoutine(int stacks)
-        {
-            yield return Run(GetTargets());
-        }
-
-        public IEnumerator CheckPosition(Entity entity)
-        {
-            if (entity == target && (target.containers.Contains(References.Player.drawContainer) || target.containers.Contains(References.Player.discardContainer)))
-            {
-                yield return Remove();
-            }
-            yield break;
-        }
-
-        public virtual void Remove(int _)
-        {
-            target.StartCoroutine(Remove());
-        }
-
-        public override IEnumerator EndRoutine()
-        {
-            if ((bool)target)
-            {
-                StatusEffectData effect = target.statusEffects.FirstOrDefault((e) => e.name == effectToApply.name);
-                if (effect != default(StatusEffectData))
-                {
-                    yield return effect.RemoveStacks(count, true);
-                    target.display.promptUpdateDescription = true;
-                    target.PromptUpdate();
-                }
-            }
-        }
-
-    }
-
-    public class StatusEffectTraitUntilTurnEnd : StatusEffectUntilTurnEnd
-    {
-        public TraitData trait;
-
-        public Entity.TraitStacks added;
-
-        public int addedAmount = 0;
-
-        public override bool HasStackRoutine => true;
-
-        public override bool HasEndRoutine => true;
-
-        public override void Init()
-        {
-            base.Init();
-        }
-
-        public override IEnumerator BeginRoutine()
-        {
-            added = target.GainTrait(trait, count, temporary: true);
-            yield return target.UpdateTraits();
-            addedAmount += count;
-            target.display.promptUpdateDescription = true;
-            target.PromptUpdate();
-        }
-
-        public override IEnumerator StackRoutine(int stacks)
-        {
-            added = target.GainTrait(trait, stacks, temporary: true);
-            yield return target.UpdateTraits();
-            addedAmount += stacks;
-            target.display.promptUpdateDescription = true;
-            target.PromptUpdate();
-        }
-
-        public override IEnumerator EndRoutine()
-        {
-            if ((bool)target)
-            {
-                if (added != null)
-                {
-                    added.count -= addedAmount;
-                    added.tempCount -= addedAmount;
-                }
-
-                addedAmount = 0;
-                yield return target.UpdateTraits(added);
-                target.display.promptUpdateDescription = true;
-                target.PromptUpdate();
-            }
-        }
-    }
-
-    public class StatusEffectBoostUntilTurnEnd : StatusEffectUntilTurnEnd
-    {
-        public override void Init()
-        {
-            base.Init();
-        }
-        public override IEnumerator Process()
-        {
-            int amount = GetAmount();
-            if ((bool)target.curveAnimator)
-            {
-                target.curveAnimator.Ping();
-            }
-
-            target.effectBonus += amount;
-            target.PromptUpdate();
-
-
-            return base.Process();
-        }
-
-        public override bool RunStackEvent(int stacks)
-        {
-            int amount = GetAmount();
-            if ((bool)target.curveAnimator)
-            {
-                target.curveAnimator.Ping();
-            }
-
-            target.effectBonus += stacks;
-            target.PromptUpdate();
-            return base.RunStackEvent(stacks);
-        }
-
-        public override void Remove(int _)
-        {
-            target.effectBonus -= GetAmount();
-            base.Remove(_);
-        }
-    }
-
-    public class StatusEffectTriggerWhenCertainAllyAttacks : StatusEffectTriggerWhenAllyAttacks
-    {
-        //Cannot change allyInRow or againstTarget without some publicizing. Shade Snake is sad :(
-        //If you have done the assembly stripping part, feel free to change those variables so that ShadeSnake can rise to its true potential.
-
-        public CardData ally;                    //Declared when we make the instance of the class.
-
-        public override bool RunHitEvent(Hit hit)
-        {
-            if (hit.attacker?.name == ally.name) //Checks if the ally attacker is Shade Serpent.
-            {
-                return base.RunHitEvent(hit);    //Most of the actual logic is done through the StatusEffectTriggerWhenAllyAttacks class, which is called here.
-            }
-            return false;                        //Otherwise, don't attack.
-        }
-    }
-
-    public class StatusEffectInstantReduceCooldown : StatusEffectInstant
-    {
-        public override IEnumerator Process()
-        {
-            foreach (StatusEffectData status in target.statusEffects)
-            {
-                if (status is ButtonCooldown button)
-                {
-                    button.cooldownCount -= GetAmount();
-                }
-            }
-            yield return base.Process();
-        }
-    }
-
-    public class StatusEffectInstantReduceMaxCooldown : StatusEffectInstant
-    {
-        public override IEnumerator Process()
-        {
-            foreach (StatusEffectData status in target.statusEffects)
-            {
-                if (status is ButtonCooldown button)
-                {
-                    button.maxCooldown -= GetAmount();
-                }
-            }
-            yield return base.Process();
-        }
-    }
-
-    public class StatusEffectWhileActiveXDoubleGold : StatusEffectWhileActiveX
-    {
-        public int storedGold = 0;
-
-        public override void Init()
-        {
-            Events.OnCollectGold += DoubleGold;
-            base.Init();
-        }
-
-        public override bool RunBeginEvent()
-        {
-            Character player = References.Player;
-            if ((bool)player && player.data != null && (bool)player.data.inventory)
-            {
-                storedGold = player.data.inventory.gold.Value;
-            }
-            return base.RunBeginEvent();
-        }
-
-        public void DoubleGold(int Golda)
-        {
-            Character player = References.Player;
-            if ((bool)player && player.data != null && (bool)player.data.inventory)
-            {
-                int newGold = player.data.inventory.gold.Value;
-                if (newGold > storedGold)
-                {
-                    int goldAdded = newGold - storedGold;
-                    player.data.inventory.gold.Value += goldAdded;
-                    storedGold = player.data.inventory.gold.Value;
-                }
-            }
-            return;
-        }
-
-        public override void OnDestroy()
-        {
-            Debug.Log("Tragué todo tomá puto");
-            Events.OnCollectGold -= DoubleGold;
-            base.OnDestroy();
-        }
-    }
-
-    public class StatusEffectInstantReplaceEffects : StatusEffectInstant
-    {
-        [SerializeField]
-        public bool replaceAllEffects = true;
-
-        [SerializeField]
-        [HideIf("replaceAllEffects")]
-        public int replaceEffectNumber;
-        public List<CardData.StatusEffectStacks> replaceEffectNames;
-        public List<CardData.TraitStacks> replaceTraitNames;
-        public List<CardData.StatusEffectStacks> replaceAttackEffectNames;
-
-        public override IEnumerator Process()
-        {
-            yield return replaceAllEffects ? RemoveAllEffects() : RemoveEffect(replaceEffectNumber);
-            yield return ReplaceEffects();
-            if (target.display is Card card)
-            {
-                card.promptUpdateDescription = true;
-            }
-            target.PromptUpdate();
-            yield return base.Process();
-        }
-
-        public IEnumerator RemoveAllEffects()
-        {
-            foreach (Entity.TraitStacks trait in target.traits)
-            {
-                trait.count = 0;
-            }
-            yield return target.UpdateTraits();
-            Routine.Clump clump = new Routine.Clump();
-            foreach (StatusEffectData item in target.statusEffects)
-            {
-                clump.Add(item.Remove());
-            }
-            yield return clump.WaitForEnd();
-        }
-
-        public IEnumerator RemoveEffect(int effectNumber)
-        {
-            StatusEffectData statusEffectData = target.statusEffects[effectNumber];
-            yield return statusEffectData.Remove();
-        }
-
-        public IEnumerator ReplaceEffects()
-        {
-            foreach (CardData.TraitStacks trait in replaceTraitNames)
-            {
-                int num = trait.count;
-                if (num > 0)
-                {
-                    applier.GainTrait(trait.data, num);
-                }
-            }
-            foreach (CardData.StatusEffectStacks item in replaceEffectNames)
-            {
-                yield return StatusEffectSystem.Apply(target, target, item.data, item.count);
-            }
-            target.attackEffects = (from a in CardData.StatusEffectStacks.Stack(target.attackEffects, replaceAttackEffectNames)
-                                     select a.Clone()).ToList();
-            yield return target.UpdateTraits();
-        }
-    }
-
-    public class StatusEffectTriggerWhenAnythingAttacks : StatusEffectReaction
-    {
-        [SerializeField]
-        public bool againstTarget;
-
-        public CardData cardThatAttacks;
-
-        public readonly HashSet<Entity> prime = new HashSet<Entity>();
-
-        public override bool RunHitEvent(Hit hit)
-        {
-            if (hit.attacker?.name == cardThatAttacks.name && target.enabled && hit.countsAsHit && hit.Offensive && (bool)hit.target && hit.trigger != null && CheckEntity(hit.attacker))
-            {
-                prime.Add(hit.attacker);
-            }
-
-            return false;
-        }
-
-        public override bool RunCardPlayedEvent(Entity entity, Entity[] targets)
-        {
-            if (prime.Count > 0 && prime.Contains(entity) && targets != null && targets.Length > 0)
-            {
-                prime.Remove(entity);
-                if (CanTrigger())
-                {
-                    Run(entity, targets);
-                }
-            }
-
-            return false;
-        }
-
-        public void Run(Entity attacker, Entity[] targets)
-        {
-            if (againstTarget)
-            {
-                foreach (Entity entity in targets)
-                {
-                    ActionQueue.Stack(new ActionTriggerAgainst(target, attacker, entity, null), fixedPosition: true);
-                }
-            }
-            else
-            {
-                ActionQueue.Stack(new ActionTrigger(target, attacker), fixedPosition: true);
-            }
-        }
-
-        public bool CheckEntity(Entity entity)
-        {
-            if ((bool)entity && entity.owner.team == target.owner.team && entity != target && CheckDuplicate(entity))
-            {
-                return CheckDuplicate(entity.triggeredBy);
-            }
-
-            return false;
-        }
-
-        public bool CheckDuplicate(Entity entity)
-        {
-            if (!entity.IsAliveAndExists())
-            {
-                return true;
-            }
-
-            foreach (StatusEffectData statusEffect in entity.statusEffects)
-            {
-                if (statusEffect.name == base.name)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 
