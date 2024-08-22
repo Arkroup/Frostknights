@@ -416,6 +416,14 @@ namespace Frostknights
                "| Click to activate\nCooldown: 3 turns", SystemLanguage.English)
                );
 
+            //Feathershine Arrows Keyword
+            keywords.Add(
+               new KeywordDataBuilder(this)
+               .Create("feathershinearrows")
+               .WithTitle("Feathershine Arrows")
+               .WithDescription("<Free Action>: Add <card=artemys.wildfrost.frostknights.fartoothTargeting> to your hand| Click to activate\nnCooldown: 4 turns", SystemLanguage.English)
+               );
+
             traits = new List<TraitDataBuilder>();
 
             //Code for traits
@@ -1114,6 +1122,7 @@ namespace Frostknights
                 .WithStackable(true)
                 .WithType("")
                 .WithVisible(false)
+                .WithText("Apply <{a}><keyword=block> until turn end")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Block");
@@ -1585,6 +1594,7 @@ namespace Frostknights
                 .WithStackable(true)
                 .WithType("")
                 .WithVisible(false)
+                .WithText("Apply <{a}><keyword=shell> until turn end")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Shell");
@@ -1702,6 +1712,106 @@ namespace Frostknights
                     ((StatusTokenApplyX)data).finiteUses = true;
                     ((ButtonCooldown)data).maxCooldown = 3;
                     ((ButtonCooldown)data).cooldownCount = 3;
+                })
+                );
+
+            //Status 90: On Card Played Frost To Enemies
+            statusEffects.Add(
+                StatusCopy("On Card Played Void To Enemies", "On Card Played Frost To Enemies")
+                .WithText("Apply <{a}><keyword=frost> to all enemies", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Frost");
+                })
+                );
+
+            //Status 91: On Card Played Increase Attack To Allies
+            statusEffects.Add(
+                StatusCopy("On Card Played Apply Spice To Allies", "On Card Played Increase Attack To Allies")
+                .WithText("Increase <keyword=attack> by <{a}> to all allies", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Increase Attack");
+                })
+                );
+
+            //Status 92: When Hit Equal Damage To Attacker Until Turn End
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("When Hit Equal Damage To Attacker Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .WithText("When Hit Equal Damage To Attacker Until Turn End")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("When Hit Equal Damage To Attacker");
+                })
+                );
+
+            //Status 93: On Card Played Increase Max Health To Allies
+            statusEffects.Add(
+                StatusCopy("On Card Played Apply Spice To Allies", "On Card Played Increase Max Health To Allies")
+                .WithText("Increase max <keyword=health> by <{a}> to all allies", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Increase Max Health (Not Current)");
+                    ((StatusEffectData)data).type = "max health up";
+                })
+                );
+
+            //Status 94: Trigger Against Anything That Attacks
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectTriggerWhenAnythingAttacks>("Trigger Against Anything That Attacks")
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .WithText("Trigger Against Anything That Attacks")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTriggerWhenAnythingAttacks)data).againstTarget = true;
+                    ((StatusEffectData)data).affectedBySnow = true;
+                    ((StatusEffectData)data).isReaction = true;
+                    ((StatusEffectTriggerWhenAnythingAttacks)data).cardThatAttacks = TryGet<CardData>("fartoothTargeting");
+                })
+                );
+
+            //Status 95: Summon Fartooth Targeting
+            statusEffects.Add(
+                StatusCopy("Summon Gunk", "Summon Fartooth Targeting")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectSummon)data).summonCard = TryGet<CardData>("fartoothTargeting");
+                })
+                );
+
+            //Status 96: Instant Summon Fartooth Targeting In Hand
+            statusEffects.Add(
+                StatusCopy("Instant Summon Gunk In Hand", "Instant Summon Fartooth Targeting In Hand")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectInstantSummon)data).targetSummon = TryGet<StatusEffectData>("Summon Fartooth Targeting") as StatusEffectSummon;
+                })
+                );
+
+            //Status 97: Feathershine Arrows Button
+            statusEffects.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Feathershine Arrows Button")
+                .WithType("feathershinearrows")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Instant Summon Fartooth Targeting In Hand");
+                    ((StatusTokenApplyX)data).endTurn = false;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((ButtonCooldown)data).maxCooldown = 4;
+                    ((ButtonCooldown)data).cooldownCount = 4;
                 })
                 );
 
@@ -2547,7 +2657,7 @@ namespace Frostknights
             cards.Add(
                 new CardDataBuilder(this).CreateUnit("fartooth", "Fartooth")
                 .SetSprites("Fartooth.png", "Fartooth BG.png")
-                .SetStats(4, 4, 3)
+                .SetStats(4, 4, 0)
                 .WithCardType("Friendly")
                 .AddPool("GeneralUnitPool")
                 .FreeModify(delegate (CardData data)
@@ -2556,9 +2666,10 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.traits = new List<CardData.TraitStacks>()
+                    data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
-                        TStack("Longshot", 1)
+                        SStack("Trigger Against Anything That Attacks", 1),
+                        SStack("Feathershine Arrows Button", 1)
                     };
                 })
                 );
@@ -2752,6 +2863,164 @@ namespace Frostknights
                 })
                 );
 
+            //Fissured Restraints Item 10
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("fissuredRestraints", "Fissured Restraints", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Fissured Restraints.png", "Fissured Restraints BG.png")
+                .SetStats(null, 0)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanPlayOnHand(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Hit All Enemies", 1)
+                    };
+                    data.attackEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("Frost", 2)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Consume", 1),
+                    };
+                })
+                );
+
+            //Oriron Round Shield Item 11
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("orironRoundShield", "Oriron Round Shield", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Oriron Round Shield.png", "Oriron Round Shield BG.png")
+                .SetStats(null, null)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                .WithText("Add <keyword=artemys.wildfrost.frostknights.provoke> until turn end")
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.attackEffects = new CardData.StatusEffectStacks[2]
+                    {
+                        SStack("Shell Until Turn End", 6),
+                        SStack("Provoke Until Turn End", 1)
+                    };
+                })
+                );
+
+            //Military Mirror Armor Item 12
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("militaryMirrorArmor", "Military Mirror Armor", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Military Mirror Armor.png", "Military Mirror Armor BG.png")
+                .SetStats(null, null)
+                .WithValue(60)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.attackEffects = new CardData.StatusEffectStacks[2]
+                    {
+                        SStack("Gain Block Until Turn End", 1),
+                        SStack("When Hit Equal Damage To Attacker Until Turn End", 1)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Consume", 1)
+                    };
+                })
+                );
+
+            //Old Steam Armor Item 13
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("oldSteamArmor", "Old Steam Armor", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Old Steam Armor.png", "Old Steam Armor BG.png")
+                .SetStats(null, null)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(false)
+                .CanPlayOnFriendly(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                .WithText("Can only target allies")
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.attackEffects = new CardData.StatusEffectStacks[2]
+                    {
+                        SStack("Haze", 1),
+                        SStack("Set Health", 8)
+                    };
+                })
+                );
+
+            //Royal Rapier Item 14
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("royalRapier", "Royal Rapier", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Royal Rapier.png", "Royal Rapier BG.png")
+                .SetStats(null, null)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanPlayOnHand(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(false)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("On Card Played Increase Attack To Allies", 1)
+                    };
+                })
+                );
+
+            //Unknown Instrument Item 15
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("unknownInstrument", "Unknown Instrument", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Unknown Instrument.png", "Unknown Instrument BG.png")
+                .SetStats(null, null)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanPlayOnHand(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(false)
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("On Card Played Increase Max Health To Allies", 4)
+                    };
+                    data.traits = new List<CardData.TraitStacks>()
+                    {
+                        TStack("Consume", 1)
+                    };
+                })
+                );
+
+            //Fartooth Targeting Item
+            cards.Add(
+                new CardDataBuilder(this).CreateItem("fartoothTargeting", "Fartooth Targeting", "TargetModeBasic", "ShakeAnimationProfile")
+                .SetSprites("Fartooth Targeting.png", "Fartooth Targeting BG.png")
+                .SetStats(null, 0)
+                .WithValue(50)
+                .CanPlayOnBoard(true)
+                .CanPlayOnEnemy(true)
+                .CanPlayOnFriendly(true)
+                .CanPlayOnHand(true)
+                .CanShoveToOtherRow(true)
+                .NeedsTarget(true)
+                );
+
             //Code for leaders
             //Kal'tsit leader
             cards.Add(
@@ -2852,7 +3121,7 @@ namespace Frostknights
                     data.startingInventory = inventory;
                     RewardPool unitPool = CreateRewardPool("RhodesUnitPool", "Units", DataList<CardData>("typhon", "pozëmka", "fiammetta", "rosmontis", "reed", "degenbrecher", "surtr", "blaze", "qiubai", "nearl", "młynar", "saria", "mudrock", "nian")
                         );
-                    RewardPool itemPool = CreateRewardPool("RhodesItemPool", "Items", DataList<CardData>("vinecreepMortarGunner", "vanillaSoda", "worn-outGroupPhoto", "castle-3", "friston-3", "justiceKnight", "thrm-ex")
+                    RewardPool itemPool = CreateRewardPool("RhodesItemPool", "Items", DataList<CardData>("castle-3", "friston-3", "justiceKnight", "thrm-ex", "fissuredRestraints", "orironRoundShield", "militaryMirrorArmor", "oldSteamArmor", "royalRapier")
                         );
                     RewardPool charmPool = CreateRewardPool("RhodesCharmPool", "Charms", DataList<CardUpgradeData>("CardUpgradeOverload")
                         );
@@ -2952,6 +3221,9 @@ namespace Frostknights
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
 
             this.CreateButtonIcon("sariaMedicineDispensing", ImagePath("sariabutton2.png").ToSprite(), "medicinedispensing", "counter", Color.black, new KeywordData[] { Get<KeywordData>("medicinedispensing") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("fartoothFeathershineArrows", ImagePath("fartoothbutton.png").ToSprite(), "feathershinearrows", "counter", Color.black, new KeywordData[] { Get<KeywordData>("feathershinearrows") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
         }
 
@@ -4064,6 +4336,83 @@ namespace Frostknights
             target.attackEffects = (from a in CardData.StatusEffectStacks.Stack(target.attackEffects, replaceAttackEffectNames)
                                      select a.Clone()).ToList();
             yield return target.UpdateTraits();
+        }
+    }
+
+    public class StatusEffectTriggerWhenAnythingAttacks : StatusEffectReaction
+    {
+        [SerializeField]
+        public bool againstTarget;
+
+        public CardData cardThatAttacks;
+
+        public readonly HashSet<Entity> prime = new HashSet<Entity>();
+
+        public override bool RunHitEvent(Hit hit)
+        {
+            if (hit.attacker?.name == cardThatAttacks.name && target.enabled && hit.countsAsHit && hit.Offensive && (bool)hit.target && hit.trigger != null && CheckEntity(hit.attacker))
+            {
+                prime.Add(hit.attacker);
+            }
+
+            return false;
+        }
+
+        public override bool RunCardPlayedEvent(Entity entity, Entity[] targets)
+        {
+            if (prime.Count > 0 && prime.Contains(entity) && targets != null && targets.Length > 0)
+            {
+                prime.Remove(entity);
+                if (CanTrigger())
+                {
+                    Run(entity, targets);
+                }
+            }
+
+            return false;
+        }
+
+        public void Run(Entity attacker, Entity[] targets)
+        {
+            if (againstTarget)
+            {
+                foreach (Entity entity in targets)
+                {
+                    ActionQueue.Stack(new ActionTriggerAgainst(target, attacker, entity, null), fixedPosition: true);
+                }
+            }
+            else
+            {
+                ActionQueue.Stack(new ActionTrigger(target, attacker), fixedPosition: true);
+            }
+        }
+
+        public bool CheckEntity(Entity entity)
+        {
+            if ((bool)entity && entity.owner.team == target.owner.team && entity != target && CheckDuplicate(entity))
+            {
+                return CheckDuplicate(entity.triggeredBy);
+            }
+
+            return false;
+        }
+
+        public bool CheckDuplicate(Entity entity)
+        {
+            if (!entity.IsAliveAndExists())
+            {
+                return true;
+            }
+
+            foreach (StatusEffectData statusEffect in entity.statusEffects)
+            {
+                if (statusEffect.name == base.name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
