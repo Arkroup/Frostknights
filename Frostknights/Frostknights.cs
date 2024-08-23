@@ -3337,7 +3337,8 @@ namespace Frostknights
                 {
                     data.traits = new List<CardData.TraitStacks>()
                     {
-                        TStack("Noomlin", 1)
+                        TStack("Noomlin", 1),
+                        TStack("Consume", 1)
                     };
                 })
                 );
