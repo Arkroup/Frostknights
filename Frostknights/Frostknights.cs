@@ -3599,7 +3599,7 @@ namespace Frostknights
                         );
                     RewardPool itemPool = CreateRewardPool("RhodesItemPool", "Items", DataList<CardData>("castle-3", "friston-3", "justiceKnight", "thrm-ex", "fissuredRestraints", "orironRoundShield", "militaryMirrorArmor", "oldSteamArmor", "royalRapier", "goldenChalice", "coinOperatedToy", "myrtle", "saileach", "elysium", "vieuxVanguard'sBlade")
                         );
-                    RewardPool charmPool = CreateRewardPool("RhodesCharmPool", "Charms", DataList<CardUpgradeData>("CardUpgradeOverload")
+                    RewardPool charmPool = CreateRewardPool("RhodesCharmPool", "Charms", DataList<CardUpgradeData>("CardUpgradeUnleashings", "CardUpgradeWaterOfLife", "CardUpgradeCaptainMorgan'sWine", "CardUpgradeRoyalLiqueur", "CardUpgradeAncientGaulishSilverCoin")
                         );
                     data.rewardPools = new RewardPool[]
                     {

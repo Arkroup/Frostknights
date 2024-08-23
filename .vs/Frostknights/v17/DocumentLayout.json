@@ -7,7 +7,11 @@
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\frostknights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\artem\\source\\repos\\frostknights\\frostknights\\targetconstraints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\artem\\source\\repos\\frostknights\\frostknights\\buttonstuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\buttonstuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|C:\\Users\\artem\\source\\repos\\Frostknights\\frostknights\\targetconstraints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\targetconstraints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -28,7 +32,7 @@
               "RelativeDocumentMoniker": "Frostknights\\Frostknights.cs",
               "ToolTip": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\Frostknights.cs",
               "RelativeToolTip": "Frostknights\\Frostknights.cs",
-              "ViewState": "AQIAACkCAAAAAAAAAAAMwE0CAAA4AAAA",
+              "ViewState": "AQIAAN8NAAAAAAAAAADgvxQOAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T20:35:14.58Z",
               "IsPinned": true,
@@ -37,12 +41,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "ButtonStuff.cs",
+              "DocumentMoniker": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\ButtonStuff.cs",
+              "RelativeDocumentMoniker": "Frostknights\\ButtonStuff.cs",
+              "ToolTip": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\ButtonStuff.cs",
+              "RelativeToolTip": "Frostknights\\ButtonStuff.cs",
+              "ViewState": "AQIAADUBAAAAAAAAAAAwwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T03:41:03.525Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "TargetConstraints.cs",
               "DocumentMoniker": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\TargetConstraints.cs",
               "RelativeDocumentMoniker": "Frostknights\\TargetConstraints.cs",
               "ToolTip": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\TargetConstraints.cs",
               "RelativeToolTip": "Frostknights\\TargetConstraints.cs",
-              "ViewState": "AQIAABMAAAAAAAAAAAAQwBoAAAA0AAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAE0AAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T01:53:38.036Z",
               "EditorCaption": ""

@@ -11,16 +11,20 @@ namespace Frostknights
     {
         public Type statusClass;
 
-        public override bool Check(Entity target)
+        public override bool Check(CardData targetData)
         {
-            foreach (StatusEffectData status in target.statusEffects)
+            foreach (CardData.StatusEffectStacks status in targetData.startWithEffects)
             {
-                if (status is ButtonCooldown button)
+                if (status.data is ButtonCooldown button)
                 {
                     return !not;
                 }
             }
             return not;
+        }
+        public override bool Check(Entity target)
+        {
+            return Check(target.data);
         }
     }
 
@@ -29,11 +33,11 @@ namespace Frostknights
         [SerializeField]
         public int value;
 
-        public override bool Check(Entity target)
+        public override bool Check(CardData targetData)
         {
-            foreach (StatusEffectData status in target.statusEffects)
+            foreach (CardData.StatusEffectStacks status in targetData.startWithEffects)
             {
-                if (status is ButtonCooldown button)
+                if (status.data is ButtonCooldown button)
                 {
                     if(button.maxCooldown <= value)
                     {
@@ -43,6 +47,10 @@ namespace Frostknights
             }
             return !not;
         }
+        public override bool Check(Entity target)
+        {
+            return Check(target.data);
+        }
     }
 
     public class TargetConstraintInitialCooldownMoreThan : TargetConstraint
@@ -50,11 +58,11 @@ namespace Frostknights
         [SerializeField]
         public int value;
 
-        public override bool Check(Entity target)
+        public override bool Check(CardData targetData)
         {
-            foreach (StatusEffectData status in target.statusEffects)
+            foreach (CardData.StatusEffectStacks status in targetData.startWithEffects)
             {
-                if (status is ButtonCooldown button)
+                if (status.data is ButtonCooldown button)
                 {
                     if (button.cooldownCount <= value)
                     {
@@ -63,6 +71,10 @@ namespace Frostknights
                 }
             }
             return !not;
+        }
+        public override bool Check(Entity target)
+        {
+            return Check(target.data);
         }
     }
 }
