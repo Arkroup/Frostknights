@@ -447,6 +447,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TargetConstraints.cs" />
+    <Compile Include="StatusEffectDoubleButtonCooldown.cs" />
     <Compile Include="Frostknights.cs" />
     <Compile Include="StatusEffectTriggerWhenCertainAllyAttacks.cs" />
     <Compile Include="StatusEffectUntilTurnEnd.cs" />
@@ -459,7 +461,6 @@
     <Compile Include="StatusEffectWhileActiveXDoubleGold.cs" />
     <Compile Include="StatusEffectInstantReplaceEffects.cs" />
     <Compile Include="StatusEffectTriggerWhenAnythingAttacks.cs" />
-    <Compile Include="TargetModeTrulyRandom.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
