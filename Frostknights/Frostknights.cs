@@ -1926,7 +1926,7 @@ namespace Frostknights
                 .WithStackable(true)
                 .WithType("")
                 .WithVisible(false)
-                .WithText("Trigger Against Anything That Attacks")
+                .WithText("Trigger Against Anything That Fartooth Targeting Attacks")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectTriggerWhenAnythingAttacks)data).againstTarget = true;

@@ -7,7 +7,7 @@
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\frostknights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\artem\\source\\repos\\frostknights\\frostknights\\buttonstuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|C:\\Users\\artem\\source\\repos\\Frostknights\\frostknights\\buttonstuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\buttonstuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -32,7 +32,7 @@
               "RelativeDocumentMoniker": "Frostknights\\Frostknights.cs",
               "ToolTip": "C:\\Users\\artem\\source\\repos\\Frostknights\\Frostknights\\Frostknights.cs",
               "RelativeToolTip": "Frostknights\\Frostknights.cs",
-              "ViewState": "AQIAAN8NAAAAAAAAAADgvxQOAAAVAAAA",
+              "ViewState": "AQIAAGwHAAAAAAAAAAAqwIAHAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T20:35:14.58Z",
               "IsPinned": true,
@@ -48,8 +48,7 @@
               "RelativeToolTip": "Frostknights\\ButtonStuff.cs",
               "ViewState": "AQIAADUBAAAAAAAAAAAwwAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T03:41:03.525Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T03:41:03.525Z"
             },
             {
               "$type": "Document",
@@ -61,8 +60,7 @@
               "RelativeToolTip": "Frostknights\\TargetConstraints.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAE0AAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T01:53:38.036Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T01:53:38.036Z"
             },
             {
               "$type": "Bookmark",
