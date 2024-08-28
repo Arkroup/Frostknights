@@ -313,6 +313,22 @@ namespace Frostknights
             OnTurnStart += CooldownCountDown;
         }
 
+        //public static void SetUpgradeCooldownText(Entity entity, CardUpgradeData charm)
+        //{
+        //    if (charm.name != "artemys.wildfrost.frostknights.CardUpgradeAncientGaulishSilverCoin" && charm.name != "artemys.wildfrost.frostknights.CardUpgradeRoyalLiqueur")
+        //    {
+        //        return;
+        //    }
+        //    foreach (CardData.StatusEffectStacks status in entity.data.startWithEffects)
+        //    {
+        //        if (status.data is ButtonCooldown button)
+        //        {
+        //            if (entity.display.FindStatusIcon(status.data.type) is not { } icon) return;
+        //            icon.textElement.text = string.Format(icon.textFormat, button.cooldownCount);
+        //        }
+        //    }
+        //}
+
         public bool cooldown => this.cooldownCount > 0;
 
         public override void RunButtonClicked()

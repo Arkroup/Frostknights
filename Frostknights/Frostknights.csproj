@@ -447,6 +447,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CardScripts.cs" />
     <Compile Include="TargetConstraints.cs" />
     <Compile Include="StatusEffectDoubleButtonCooldown.cs" />
     <Compile Include="Frostknights.cs" />
