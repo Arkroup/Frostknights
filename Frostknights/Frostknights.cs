@@ -653,12 +653,13 @@ namespace Frostknights
                 );
 
             //Code for status effects
-            //Status 0: Add Block to All Allies
+            //Status 0: On Turn Apply Block To Allies
             assets.Add(
-                StatusCopy("On Turn Apply Spice To AllyBehind", "On Turn Apply Block To AllyBehind")
+                StatusCopy("On Turn Apply Spice To AllyBehind", "On Turn Apply Block To Allies")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Block");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Allies;
                 })
                 .WithText("Apply <{a}><keyword=block> to ally behind", SystemLanguage.English)
                 );
@@ -1448,7 +1449,7 @@ namespace Frostknights
             //Status 59: Apply Snow to All Enemies When Losing All Snow
             assets.Add(
                 StatusCopy("Trigger When Self Or Ally Loses Block", "Apply Snow to All Enemies When Losing All Snow")
-                .WithText("When self loses all <keyword=snow> apply <{a}><keyword=snow> to all enemies", SystemLanguage.English)
+                .WithText("When losing all <keyword=snow> apply <{a}><keyword=snow> to all enemies", SystemLanguage.English)
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Snow");
@@ -2350,6 +2351,48 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectTemporaryTrait)data).trait = TryGet<TraitData>("Smackback");
+                })
+                );
+
+            //Status 126: On Turn Apply Reduce Max Counter To Self
+            assets.Add(
+                StatusCopy("On Turn Apply Attack To Self", "On Turn Apply Reduce Max Counter To Self")
+                .WithText("Reduce self's <keyword=counter> by <{a}>")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Max Counter");
+                })
+                );
+
+            //Status 127: On Turn Summon Typewriter
+            assets.Add(
+                StatusCopy("On Turn Summon Bootleg Copy of RandomEnemy", "On Turn Summon Typewriter")
+                .WithText("Summon {0}", SystemLanguage.English)
+                .WithTextInsert("<card=artemys.wildfrost.frostknights.typewriter>")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXOnTurn)data).effectToApply = TryGet<StatusEffectData>("Instant Summon Typewriter");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
+            //Status 128: Instant Summon Typewriter
+            assets.Add(
+                StatusCopy("Instant Summon Fallow", "Instant Summon Typewriter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectInstantSummon)data).targetSummon = TryGet<StatusEffectData>("Summon Typewriter") as StatusEffectSummon;
+                })
+                );
+
+
+            //Status 129: On Turn Reduce Counter To Allies
+            assets.Add(
+                StatusCopy("On Turn Add Attack To Allies", "On Turn Reduce Counter To Allies")
+                .WithText("On turn count down allies <keyword=counter>")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Counter");
                 })
                 );
 
@@ -4120,6 +4163,25 @@ namespace Frostknights
                 swappers.Add(CreateSwapper("Spirit Burst Button Listener_1", "Hit Truly Random Target", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Freathershine Arrows Button", "Temporary Smackback", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Calcification Button", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Anatta Button", "MultiHit", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Originite Prime Button", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button", "Temporary Splash", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_1", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_2", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_3", "Apply Snow to All Enemies When Losing All Snow", minBoost: 2, maxBoost: 4));
+                swappers.Add(CreateSwapper("Twilight Button", "Temporary Barrage", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Twilight Button Listener_1", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Order of the Icefield Button", "MultiHit", minBoost: 2, maxBoost: 2));
+                swappers.Add(CreateSwapper("Paenitete Button", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Soul of the Jungle Button", "Block", minBoost: 2, maxBoost: 2));
+                swappers.Add(CreateSwapper("Destreza Button", "On Turn Apply Reduce Max Counter To Self", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Saw of Strength Button", "Temporary Barrage", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Iron Defense Button", "On Turn Apply Block To Allies", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Iron Defense Button Listener_1", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Opprobrium Button", "On Turn Summon Typewriter", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Trial of Thorns Button", "Teeth", minBoost: 2, maxBoost: 4));
+                swappers.Add(CreateSwapper("Trial of Thorns Button Listener_1", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("On Turn Decrease Cooldown To Allies", "On Turn Reduce Counter To Allies", minBoost: 0, maxBoost: 0));
                 __instance.effectSwappers = __instance.effectSwappers.AddRangeToArray(swappers.ToArray()).ToArray();
             }
 
