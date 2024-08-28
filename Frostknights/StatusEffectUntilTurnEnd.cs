@@ -90,7 +90,6 @@ namespace Frostknights
                 }
             }
         }
-
     }
 
     public class StatusEffectTraitUntilTurnEnd : StatusEffectUntilTurnEnd
