@@ -72,7 +72,7 @@ namespace Frostknights
 
         public override string Title => "Frostknights";
 
-        public override string Description => "This mod intends to add operators from Arknights as assets, in the future I plan to add a new Rhodes Island clan, new enemies and bosses, and more.\r\n\r\nCurrently there are 36 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released assets for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects!\r\n\r\nAll the art is owned by Hypergryph";
+        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects!\r\n\r\nAll the art is owned by Hypergryph";
 
         public T TryGet<T>(string name) where T : DataFile
         {
