@@ -51,7 +51,9 @@ namespace Frostknights
             };
             string[] medics = { "artemys.wildfrost.frostknights.shining","artemys.wildfrost.frostknights.nightingale","artemys.wildfrost.frostknights.reed"
             };
-            string[] sniper = { "artemys.wildfrost.frostknights.rosmontis","artemys.wildfrost.frostknights.exusiai","artemys.wildfrost.frostknights.archetto","artemys.wildfrost.frostknights.fiammetta","artemys.wildfrost.frostknights.w","artemys.wildfrost.frostknights.pozëmka","artemys.wildfrost.frostknights.schwarz","artemys.wildfrost.frostknights.typhon","artemys.wildfrost.frostknights.fartooth"
+            string[] snipers = { "artemys.wildfrost.frostknights.rosmontis","artemys.wildfrost.frostknights.exusiai","artemys.wildfrost.frostknights.archetto","artemys.wildfrost.frostknights.fiammetta","artemys.wildfrost.frostknights.w","artemys.wildfrost.frostknights.pozëmka","artemys.wildfrost.frostknights.schwarz","artemys.wildfrost.frostknights.typhon","artemys.wildfrost.frostknights.fartooth"
+            };
+            string[] vanguards = { "artemys.wildfrost.frostknights.saileach","artemys.wildfrost.frostknights.elysium","artemys.wildfrost.frostknights.myrtle"
             };
 
             yield return SceneManager.WaitUntilUnloaded("CardFramesUnlocked");
@@ -72,7 +74,7 @@ namespace Frostknights
 
         public override string Title => "Frostknights";
 
-        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects!\r\n\r\nAll the art is owned by Hypergryph";
+        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects! Thanks also to @artemis_w for the art for the tribe!\r\n\r\nAll the card art is owned by Hypergryph";
 
         public T TryGet<T>(string name) where T : DataFile
         {
@@ -330,7 +332,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("paenitete")
                .WithTitle("\"Paenitete\"")
-               .WithDescription("<End Turn>: Apply 1<keyword=artemys.wildfrost.frostknights.burning> to enemies in row| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<End Turn>: Apply 2<keyword=artemys.wildfrost.frostknights.burning> to enemies in row| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Twilight Keyword
@@ -2396,6 +2398,15 @@ namespace Frostknights
                 })
                 );
 
+            //Status 125: Temporary Splash
+            assets.Add(
+                StatusCopy("Temporary Barrage", "Temporary Splash")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTemporaryTrait)data).trait = TryGet<TraitData>("Splash");
+                })
+                );
+
             //Code for units
             //Nian Card 1
             assets.Add(
@@ -3125,7 +3136,7 @@ namespace Frostknights
                     };
                     data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Paenitete Button", 1)
+                        SStack("Paenitete Button", 2)
                     };
                 })
                 );
@@ -3390,7 +3401,7 @@ namespace Frostknights
                 {
                     data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
-                        SStack("Scrap", 3),
+                        SStack("Scrap", 2),
                         SStack("While Active Increase Attack To Allies", 1)
                     };
                 })
@@ -3739,7 +3750,7 @@ namespace Frostknights
                 {
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Burning", 1)
+                        SStack("Burning", 2)
                     };
                 })
                 );
@@ -4161,7 +4172,7 @@ namespace Frostknights
                 swappers.Add(CreateSwapper("Inheritance of Faith Button", "On Turn Heal Ally With The Lowest Health", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Spirit Burst Button", "MultiHit", minBoost: 1, maxBoost: 2));
                 swappers.Add(CreateSwapper("Spirit Burst Button Listener_1", "Hit Truly Random Target", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Freathershine Arrows Button", "Temporary Smackback", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Feathershine Arrows Button", "Temporary Smackback", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Calcification Button", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Anatta Button", "MultiHit", minBoost: 1, maxBoost: 1));
                 swappers.Add(CreateSwapper("Originite Prime Button", minBoost: 0, maxBoost: 0));

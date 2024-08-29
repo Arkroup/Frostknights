@@ -146,6 +146,11 @@ namespace Frostknights
 
         public virtual void RunButtonClicked()
         {
+            if (!ActionQueue.Empty) //Triggers, status applications, and other important things are placed here to resolve.
+            {
+                return;
+            }
+
             if ((bool)References.Battle && References.Battle.phase == Battle.Phase.Play
                 && CorrectPlace()
                 && !target.IsSnowed
@@ -205,7 +210,7 @@ namespace Frostknights
         public int fixedAmount = 0;
         public int hitDamage = 0;
 
-        public IEnumerator ButtonClicked()
+        public virtual IEnumerator ButtonClicked()
         { 
             if (hitDamage != 0)
             {
@@ -352,11 +357,11 @@ namespace Frostknights
             base.RunButtonClicked();
         }
 
-        public override IEnumerator PostClick()
+        public override IEnumerator ButtonClicked()
         {
             cooldownCount = maxCooldown;
             SetCooldownText();
-            yield return base.PostClick();
+            yield return base.ButtonClicked();
         }
 
         public override void ButtonCreate(StatusIconExt icon)
