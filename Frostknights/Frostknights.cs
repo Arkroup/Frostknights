@@ -74,7 +74,7 @@ namespace Frostknights
 
         public override string Title => "Frostknights";
 
-        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome.\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects! Thanks also to @artemis_w for the art for the tribe!\r\n\r\nAll the card art is owned by Hypergryph";
+        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome. Several characters are due an update and will have a skill in the future: Irene, Ch'en, SilverAsh, Młynar, Qiubai, Pallas, Degenbrecher, Reed, Hoederer and Archetto\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects! Thanks also to @artemis_w for the art for the tribe flag and the chain of the charms! And @megamarine for the Ignite icon!\r\n\r\nAll the card art is owned by Hypergryph";
 
         public T TryGet<T>(string name) where T : DataFile
         {
@@ -251,11 +251,11 @@ namespace Frostknights
                .WithCanStack(false)
                );
 
-            //Burning Keyword
+            //Ignite Keyword
             assets.Add(
                new KeywordDataBuilder(this)
                .Create("burning")
-               .WithTitle("Burning")
+               .WithTitle("Ignite")
                .WithShowName(false)
                .WithDescription("Explodes when hit, damaging all targets in row then clearing|Applying more increases the explosion!", SystemLanguage.English)
                .WithIconName("burningicon")
@@ -761,7 +761,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Allies;
-                    ((StatusEffectApplyX)data).applyConstraints = new TargetConstraint[1]
+                    ((StatusEffectApplyX)data).applyConstraints = new TargetConstraint[]
                     {
                         new TargetConstraintIsSpecificCard()
                         {
@@ -868,7 +868,7 @@ namespace Frostknights
             //Status 20: On Hit Increase Counter
             assets.Add(
                 StatusCopy("On Hit Pull Target", "On Hit Increase Counter")
-                .WithText("Raise <keyword=counter> by <{a}>", SystemLanguage.English)
+                .WithText("Count up <keyword=counter> by <{a}>", SystemLanguage.English)
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Increase Counter");
@@ -1980,7 +1980,7 @@ namespace Frostknights
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 4;
-                    ((ButtonCooldown)data).cooldownCount = 4;
+                    ((ButtonCooldown)data).cooldownCount = 1;
                 })
                 );
 
@@ -2082,6 +2082,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Increase Cooldown Countdown");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
                 );
 
@@ -2244,7 +2245,23 @@ namespace Frostknights
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("On Card Played Damage To Self");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
-                ); 
+                );
+
+            //Status 116b: On Card Played Damage To Self Until Turn End
+            //Staus 113: Damage Equal To Health Until Turn End
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("On Card Played Damage To Self Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("On Card Played Damage To Self");
+                })
+                );
 
             //Status 117: Boiling Burst Button Listener_2
             assets.Add(
@@ -2861,7 +2878,7 @@ namespace Frostknights
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("blaze", "Blaze")
                 .SetSprites("Blaze.png", "Blaze BG.png")
-                .SetStats(13, 8, 4)
+                .SetStats(13, 6, 4)
                 .WithCardType("Friendly")
                 .FreeModify(delegate (CardData data)
                 {
@@ -3555,7 +3572,7 @@ namespace Frostknights
                     data.attackEffects = new CardData.StatusEffectStacks[2]
                     {
                         SStack("Haze", 1),
-                        SStack("Set Health", 8)
+                        SStack("Increase Max Health", 8)
                     };
                 })
                 );
@@ -3930,8 +3947,8 @@ namespace Frostknights
 
         private void IconStuff()
         {
-            this.CreateIcon("burningicon", ImagePath("burningicon.png").ToSprite(), "burning", "spice", Color.black, new KeywordData[] { Get<KeywordData>("burning") })
-                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+            this.CreateIcon("burningicon", ImagePath("burningicon.png").ToSprite(), "burning", "spice", Color.white, new KeywordData[] { Get<KeywordData>("burning") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).gameObject.transform.localPosition = new Vector3(0, -0.06f, 0);
 
             this.CreateButtonIcon("penanceTrialofThorns", ImagePath("penancebutton.png").ToSprite(), "trialofthorns", "counter", Color.black, new KeywordData[] { Get<KeywordData>("trialofthorns") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;

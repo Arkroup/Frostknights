@@ -24,7 +24,7 @@ namespace Frostknights
 
         public void CooldownCountDouble(StatusEffectData status, ref int amount)
         {
-            if (status is ButtonCooldown && !Silenced() && Battle.IsOnBoard(target))
+            if (status is ButtonCooldown && !Silenced() && Battle.IsOnBoard(target) && status.target == target)
             {
                 amount += GetAmount();
             }
