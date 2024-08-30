@@ -1502,6 +1502,27 @@ namespace Frostknights
                 })
                 );
 
+            //Status 61b: On Turn Heal Mon3tr2 And Kal'tsit
+            assets.Add(
+                StatusCopy("On Turn Heal Allies", "On Turn Heal Mon3tr2 And Kal'tsit")
+                .WithText("Restore <{a}><keyword=health> to self and <card=artemys.wildfrost.frostknights.mon3tr2>", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).applyConstraints = new TargetConstraint[1]
+                    {
+                        new TargetConstraintIsSpecificCard()
+                        {
+                            allowedCards = new CardData[]
+                            {
+                                TryGet<CardData>("mon3tr2"),
+                                TryGet<CardData>("kal'tsit")
+                            }
+                        }
+                    };
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self | StatusEffectApplyX.ApplyToFlags.Allies;
+                })
+                );
+
             //Status 62: Summon Mon3tr
             assets.Add(
                 StatusCopy("Summon Gunk", "Summon Mon3tr")
@@ -2077,6 +2098,7 @@ namespace Frostknights
             assets.Add(
                 new StatusEffectDataBuilder(this)
                 .Create<StatusEffectDoubleButtonCooldown>("Increase Cooldown Countdown")
+                .WithText("While active, all allies' <keyword=artemys.wildfrost.frostknights.cooldown> count down by <{a}> more each turn")
                 );
 
             //Status 105: While Active Increase Cooldown Countdown
@@ -2084,10 +2106,10 @@ namespace Frostknights
                 StatusCopy("While Active Halt Spice To Allies", "While Active Increase Cooldown Countdown")
                 .WithText("While active, all allies' <keyword=artemys.wildfrost.frostknights.cooldown> count down by <{a}> more each turn")
                 .WithCanBeBoosted(true)
+                .WithStackable(false)
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Increase Cooldown Countdown");
-                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
                 );
 
@@ -2247,13 +2269,12 @@ namespace Frostknights
                 .WithType("boilingburst_listener")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("On Card Played Damage To Self");
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("On Card Played Damage To Self Until Turn End");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
                 );
 
-            //Status 116b: On Card Played Damage To Self Until Turn End
-            //Staus 113: Damage Equal To Health Until Turn End
+            //Staus 116b: On Card Played Damage To Self Until Turn End
             assets.Add(
                 new StatusEffectDataBuilder(this)
                 .Create<StatusEffectApplyXUntilTurnEnd>("On Card Played Damage To Self Until Turn End")
@@ -2426,6 +2447,35 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectTemporaryTrait)data).trait = TryGet<TraitData>("Splash");
+                })
+                );
+
+            //Status 126: Summon Mon3tr2
+            assets.Add(
+                StatusCopy("Summon Fallow", "Summon Mon3tr2")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectSummon)data).summonCard = TryGet<CardData>("mon3tr2");
+                })
+                );
+
+            //Status 127: Instant Summon Mon3tr2
+            assets.Add(
+                StatusCopy("Instant Summon Fallow", "Instant Summon Mon3tr2")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectInstantSummon)data).targetSummon = TryGet<StatusEffectData>("Summon Mon3tr2") as StatusEffectSummon;
+                })
+                );
+
+            //Status 128: When Deployed Summon Mon3tr2
+            assets.Add(
+                StatusCopy("When Deployed Summon Wowee", "When Deployed Summon Mon3tr2")
+                .WithText("When deployed, summon {0}", SystemLanguage.English)
+                .WithTextInsert("<card=artemys.wildfrost.frostknights.mon3tr2>")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXWhenDeployed)data).effectToApply = TryGet<StatusEffectData>("Instant Summon Mon3tr2");
                 })
                 );
 
@@ -3311,6 +3361,21 @@ namespace Frostknights
                 })
                 );
 
+            //Mon3tr2 Card
+            assets.Add(
+                new CardDataBuilder(this).CreateUnit("mon3tr2", "Mon3tr")
+                .SetSprites("Mon3tr.png", "Mon3tr BG.png")
+                .SetStats(26, 4, 2)
+                .WithCardType("Summoned")
+                .SubscribeToAfterAllBuildEvent(delegate (CardData data)
+                {
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
+                    {
+                        SStack("On Turn Apply Attack To Self", 2)
+                    };
+                })
+                );
+
             //Code for items
             //Vanilla Soda Item 1
             assets.Add(
@@ -3571,7 +3636,7 @@ namespace Frostknights
                 .CanPlayOnFriendly(true)
                 .CanShoveToOtherRow(true)
                 .NeedsTarget(true)
-                .WithText("Set <keyword=health> to <8>. Can only target allies")
+                .WithText("Can only target allies")
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
                     data.attackEffects = new CardData.StatusEffectStacks[2]
@@ -4216,6 +4281,9 @@ namespace Frostknights
                 swappers.Add(CreateSwapper("Trial of Thorns Button", "Teeth", minBoost: 2, maxBoost: 4));
                 swappers.Add(CreateSwapper("Trial of Thorns Button Listener_1", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("On Turn Decrease Cooldown To Allies", "On Turn Reduce Counter To Allies", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("On Turn Heal Mon3tr And Kal'tsit", "On Turn Heal Mon3tr2 And Kal'tsit", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("When Deployed Add Mon3tr To Hand", "When Deployed Summon Mon3tr2", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("While Active Increase Cooldown Countdown", "On Card Played Reduce Counter To Allies", minBoost: 0, maxBoost: 0));
                 __instance.effectSwappers = __instance.effectSwappers.AddRangeToArray(swappers.ToArray()).ToArray();
             }
 
