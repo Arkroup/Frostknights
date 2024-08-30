@@ -649,6 +649,11 @@ namespace Frostknights
                         new TargetConstraintAttackMoreThan()
                         {
                             value = 0
+                        },
+                        new TargetConstraintHasTrait()
+                        {
+                            trait = TryGet<TraitData>("Barrage"),
+                            not = true
                         }
                     };
                 })
@@ -1067,7 +1072,7 @@ namespace Frostknights
                 .Create<StatusEffectTraitUntilTurnEnd>("Provoke Until Turn End")
                 .WithCanBeBoosted(false)
                 .WithIsStatus(false)
-                .WithStackable(true)
+                .WithStackable(false)
                 .WithType("")
                 .WithVisible(false)
                 .FreeModify<StatusEffectTraitUntilTurnEnd>(
@@ -1938,7 +1943,7 @@ namespace Frostknights
                 .WithStackable(true)
                 .WithType("")
                 .WithVisible(false)
-                .WithText("Trigger Against Anything That Fartooth Targeting Attacks")
+                .WithText("Trigger Against Anything That  <card=artemys.wildfrost.frostknights.fartoothTargeting> Attacks")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectTriggerWhenAnythingAttacks)data).againstTarget = true;
@@ -4177,32 +4182,33 @@ namespace Frostknights
             {
                 List<FinalBossEffectSwapper> swappers = new List<FinalBossEffectSwapper>();
                 swappers.Add(CreateSwapper("When Deployed Add Mirage To Hand", "On Turn Summon Mirage", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Charging Mode Button", "MultiHit", minBoost: 2, maxBoost: 3));
+                swappers.Add(CreateSwapper("Charging Mode Button", "MultiHit", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Charging Mode Button Listener_1", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Charging Mode Button Listener_2", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Boiling Burst Button", "Temporary Barrage", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Boiling Burst Button Listener_1", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Boiling Burst Button Listener_2", "MultiHit", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Boiling Burst Button Listener_2", "MultiHit", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Monitor Button", "On Turn Apply Bom Until Turn End To Enemies", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Divine Avatar Button", "On Hit Equal Heal To Ally With Lowest Health", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Divine Avatar Button Listener_1", "Damage Equal To Health", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Inheritance of Faith Button", "On Turn Heal Ally With The Lowest Health", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Spirit Burst Button", "MultiHit", minBoost: 1, maxBoost: 2));
+                swappers.Add(CreateSwapper("Spirit Burst Button", "MultiHit", minBoost: 0, maxBoost: 1));
                 swappers.Add(CreateSwapper("Spirit Burst Button Listener_1", "Hit Truly Random Target", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Feathershine Arrows Button", "Temporary Smackback", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Trigger Against Anything That Attacks", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Calcification Button", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Anatta Button", "MultiHit", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Anatta Button", "MultiHit", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Originite Prime Button", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button", "Temporary Splash", minBoost: 1, maxBoost: 1));
-                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_1", minBoost: 1, maxBoost: 1));
-                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_2", minBoost: 1, maxBoost: 1));
-                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_3", "Apply Snow to All Enemies When Losing All Snow", minBoost: 2, maxBoost: 4));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_1", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_2", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Bloodline of Desecrated Earth Button Listener_3", "Apply Snow to All Enemies When Losing All Snow", minBoost: 1, maxBoost: 3));
                 swappers.Add(CreateSwapper("Twilight Button", "Temporary Barrage", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Twilight Button Listener_1", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Order of the Icefield Button", "MultiHit", minBoost: 2, maxBoost: 2));
+                swappers.Add(CreateSwapper("Order of the Icefield Button", "MultiHit", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Paenitete Button", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Soul of the Jungle Button", "Block", minBoost: 2, maxBoost: 2));
-                swappers.Add(CreateSwapper("Destreza Button", "On Turn Apply Reduce Max Counter To Self", minBoost: 1, maxBoost: 1));
+                swappers.Add(CreateSwapper("Soul of the Jungle Button", "Block", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Destreza Button", "On Turn Apply Reduce Max Counter To Self", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Saw of Strength Button", "Temporary Barrage", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Iron Defense Button", "On Turn Apply Block To Allies", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Iron Defense Button Listener_1", minBoost: 0, maxBoost: 0));
