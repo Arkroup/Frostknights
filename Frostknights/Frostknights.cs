@@ -489,6 +489,14 @@ namespace Frostknights
                .WithDescription("<Free Action>: Apply 2<keyword=spice> to self and ally in front when triggering for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
+            //Ember of Life Keyword
+            assets.Add(
+               new KeywordDataBuilder(this)
+               .Create("emberoflife")
+               .WithTitle("Ember of Life")
+               .WithDescription("<Free Action>: On turn, apply 1<keyword=overload> to all enemies| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               );
+
             //Code for traits
             //Splash Trait
             TraitDataBuilder splash = new TraitDataBuilder(this)
@@ -2666,6 +2674,40 @@ namespace Frostknights
                 })
                 );
 
+            //Status 145: Ember of Life Button
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<ButtonCooldown>("Ember of Life Button")
+                .WithType("emberoflife")
+                .WithVisible(true)
+                .WithIconGroupName("counter")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("On Turn Apply Overload To Enemies Until Turn End");
+                    ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                    ((StatusTokenApplyX)data).endTurn = false;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((ButtonCooldown)data).maxCooldown = 5;
+                    ((ButtonCooldown)data).cooldownCount = 2;
+                })
+                );
+
+            //Staus 143: On Turn Apply Overload To Enemies Until Turn End
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("On Turn Apply Overload To Enemies Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .WithText("Aplly <a><keyword=overload> to all enemies")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("On Turn Apply Overload To Enemies");
+                })
+                );
+
             //Code for units
             //Nian Card 1
             assets.Add(
@@ -3234,7 +3276,7 @@ namespace Frostknights
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("reed", "Reed")
                 .SetSprites("Reed.png", "Reed BG.png")
-                .SetStats(5, 4, 4)
+                .SetStats(5, 3, 2)
                 .WithCardType("Friendly")
                 .FreeModify(delegate (CardData data)
                 {
@@ -3242,13 +3284,9 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.traits = new List<CardData.TraitStacks>()
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        TStack("Splash", 2)
-                    };
-                    data.attackEffects = new CardData.StatusEffectStacks[1]
-                    {
-                        SStack("Overload", 3)
+                        SStack("Ember of Life Button", 1)
                     };
                 })
                 );
@@ -4287,6 +4325,9 @@ namespace Frostknights
 
             this.CreateButtonIcon("pallasBlessingofHeroism", ImagePath("pallasbutton.png").ToSprite(), "blessingofheroism", "counter", Color.black, new KeywordData[] { Get<KeywordData>("blessingofheroism") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateButtonIcon("reedEmberofLife", ImagePath("reedbutton.png").ToSprite(), "emberoflife", "counter", Color.black, new KeywordData[] { Get<KeywordData>("emberoflife") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
         }
 
         public override void Unload()
@@ -4398,7 +4439,7 @@ namespace Frostknights
         [HarmonyPatch(typeof(CardPopUpTarget), "Pop")]
         internal static class PatchDynamicKeyword
         {
-            public static List<string> dynamicKeywords = new List<string> { "artemys.wildfrost.frostknights.trialofthorns", "artemys.wildfrost.frostknights.blazingsunsobeisance", "artemys.wildfrost.frostknights.opprobrium", "artemys.wildfrost.frostknights.irondefense", "artemys.wildfrost.frostknights.sawofstrength", "artemys.wildfrost.frostknights.destreza", "artemys.wildfrost.frostknights.soulofthejungle", "artemys.wildfrost.frostknights.orderoftheicefield", "artemys.wildfrost.frostknights.paenitete", "artemys.wildfrost.frostknights.originiteprime", "artemys.wildfrost.frostknights.command:meltdown", "artemys.wildfrost.frostknights.calcification", "artemys.wildfrost.frostknights.medicinedispensing", "artemys.wildfrost.frostknights.feathershinearrows", "artemys.wildfrost.frostknights.spiritburst", "artemys.wildfrost.frostknights.monitor", "artemys.wildfrost.frostknights.inheritanceoffaith", "artemys.wildfrost.frostknights.divineavatar", "artemys.wildfrost.frostknights.boilingburst", "artemys.wildfrost.frostknights.chargingmode", "artemys.wildfrost.frostknights.judgement", "artemys.wildfrost.frostknights.chixiao-unsheath", "artemys.wildfrost.frostknights.blessingofheroism" };
+            public static List<string> dynamicKeywords = new List<string> { "artemys.wildfrost.frostknights.trialofthorns", "artemys.wildfrost.frostknights.blazingsunsobeisance", "artemys.wildfrost.frostknights.opprobrium", "artemys.wildfrost.frostknights.irondefense", "artemys.wildfrost.frostknights.sawofstrength", "artemys.wildfrost.frostknights.destreza", "artemys.wildfrost.frostknights.soulofthejungle", "artemys.wildfrost.frostknights.orderoftheicefield", "artemys.wildfrost.frostknights.paenitete", "artemys.wildfrost.frostknights.originiteprime", "artemys.wildfrost.frostknights.command:meltdown", "artemys.wildfrost.frostknights.calcification", "artemys.wildfrost.frostknights.medicinedispensing", "artemys.wildfrost.frostknights.feathershinearrows", "artemys.wildfrost.frostknights.spiritburst", "artemys.wildfrost.frostknights.monitor", "artemys.wildfrost.frostknights.inheritanceoffaith", "artemys.wildfrost.frostknights.divineavatar", "artemys.wildfrost.frostknights.boilingburst", "artemys.wildfrost.frostknights.chargingmode", "artemys.wildfrost.frostknights.judgement", "artemys.wildfrost.frostknights.chixiao-unsheath", "artemys.wildfrost.frostknights.blessingofheroism", "artemys.wildfrost.frostknights.emberoflife" };
             public static string dynamicTypes = typeof(ButtonCooldown).Name;
             static void Postfix(CardPopUpTarget __instance)
             {
