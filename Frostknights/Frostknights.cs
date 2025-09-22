@@ -293,7 +293,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("blazingsunsobeisance")
                .WithTitle("Blazing Sun's Obeisance")
-               .WithDescription("<End Turn>: Summon <card=artemys.wildfrost.frostknights.blazingSun>| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Summon <card=artemys.wildfrost.frostknights.blazingSun>| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Opprobrium Keyword
@@ -317,7 +317,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("sawofstrength")
                .WithTitle("Saw of Strength")
-               .WithDescription("<End Turn>: Gain <keyword=barrage> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain <keyword=barrage> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Destreza Keyword
@@ -341,7 +341,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("orderoftheicefield")
                .WithTitle("Order of the Icefield")
-               .WithDescription("<End Turn>: Gain 2<keyword=frenzy> until turn end| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain <keyword=artemys.wildfrost.frostknights.wideshot>| Click to activate\nOne use", SystemLanguage.English)
                );
 
             //"Paenitete" Keyword
@@ -357,7 +357,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("twilight")
                .WithTitle("Twilight")
-               .WithDescription("<End Turn>: Gain <keyword=barrage> and deal 3 damage to self on attack| Click to activate\nOne use", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain <keyword=barrage> and deal 3 damage to self on attack| Click to activate\nOne use", SystemLanguage.English)
                );
 
             //Bloodline of Desecrated Earth Keyword
@@ -365,7 +365,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("bloodlineofdesecratedearth")
                .WithTitle("Bloodline of Desecrated Earth")
-               .WithDescription("<End Turn>: Apply 5<keyword=snow> to self, and gain barrage, reduced counter and snow enemies once snow is removed on self| Click to activate\nOne use", SystemLanguage.English)
+               .WithDescription("<Free Action>: Apply 5<keyword=snow> to self, and gain barrage, reduced counter and snow enemies once snow is removed on self| Click to activate\nOne use", SystemLanguage.English)
                );
 
             //Originite Prime Keyword
@@ -407,7 +407,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("anatta")
                .WithTitle("Anatta")
-               .WithDescription("<Free Action>: Gain 1<keyword=frenzy>| Click to activate\nOne use", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain 1<keyword=frenzy>| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Calcification Keyword
@@ -448,7 +448,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("monitor")
                .WithTitle("Monitor")
-               .WithDescription("<End Turn>: Apply 3<keyword=weakness> to all enemies for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Apply 3<keyword=weakness> to all enemies for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Inheritance of Faith Keyword
@@ -456,7 +456,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("inheritanceoffaith")
                .WithTitle("Inheritance of Faith")
-               .WithDescription("<End Turn>: Heal active companion with the lowest <keyword=health> by <4>| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Heal active companion with the lowest <keyword=health> by <4>| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Divine Avatar Keyword
@@ -472,7 +472,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("boilingburst")
                .WithTitle("Boiling Burst")
-               .WithDescription("<End Turn>: Gain <keyword=barrage>, deal 3 damage to self and 1<keyword=frenzy> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain <keyword=barrage>, deal 3 damage to self and 1<keyword=frenzy> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Charging Mode Keyword
@@ -488,7 +488,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("judgement")
                .WithTitle("Judgement")
-               .WithDescription("<End Turn>: Gain 2 extra <keyword=frenzy>, splash 2 and hit random enemies for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<Free Action>: Gain 2 extra <keyword=frenzy>, <keyword=artemys.wildfrost.frostknights.splash> 2 and <keyword=artemys.wildfrost.frostknights.blindshot> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Chi Xiao - Unsheath Keyword
@@ -535,6 +535,26 @@ namespace Frostknights
                .WithDescription("Deals damage to attackers, lose equal to damage taken from hits|Does teeth damage", SystemLanguage.English)
                .WithIconName("bonesicon")
                );
+
+            //Wideshot Keyword
+            assets.Add(
+                new KeywordDataBuilder(this)
+                .Create("wideshot")
+                .WithTitle("Wideshot")
+                .WithShowName(show: true)
+                .WithDescription("Also hits the unit on the opposite row of the target.")
+                .WithCanStack(show: false)
+                );
+
+            //Pierce Keyword
+            assets.Add(
+                new KeywordDataBuilder(this)
+                .Create("pierce")
+                .WithTitle("Pierce")
+                .WithShowName(show: true)
+                .WithDescription("Also hits the unit behind the target.")
+                .WithCanStack(show: false)
+                );
 
             //Code for traits
             //Splash Trait
@@ -606,6 +626,30 @@ namespace Frostknights
                         trait.effects = new StatusEffectData[] { TryGet<StatusEffectData>("Hit Truly Random Target") };
                     });
             assets.Add(blindshot);
+
+            //Wideshot Trait
+            assets.Add(new TraitDataBuilder(this)
+                .Create("Wideshot")
+                .WithOverrides(TryGet<TraitData>("Barrage"), TryGet<TraitData>("Longshot"), TryGet<TraitData>("Aimless"))
+                .SubscribeToAfterAllBuildEvent(delegate (TraitData trait)
+                {
+                    trait.keyword = Get<KeywordData>("wideshot");
+                    trait.effects = new StatusEffectData[1] { Get<StatusEffectData>("Wideshot") };
+                    trait.overrides = new TraitData[1] { TryGet<TraitData>("Pierce") };
+                })
+                );
+
+            //Pierce Trait
+            assets.Add(new TraitDataBuilder(this)
+                .Create("Pierce")
+                .WithOverrides(TryGet<TraitData>("Barrage"), TryGet<TraitData>("Longshot"), TryGet<TraitData>("Aimless"))
+                .SubscribeToAfterAllBuildEvent(delegate (TraitData trait)
+                {
+                    trait.keyword = Get<KeywordData>("pierce");
+                    trait.effects = new StatusEffectData[1] { Get<StatusEffectData>("Piercer") };
+                    trait.overrides = new TraitData[1] { TryGet<TraitData>("Wideshot") };
+                })
+                );
 
             //Code for charms
             //Ancient Gaulish Silver Coin
@@ -1240,7 +1284,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Instant Summon Blazing Sun");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 8;
@@ -1347,7 +1391,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Barrage Until Turn End");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 6;
@@ -1458,11 +1502,11 @@ namespace Frostknights
                 .WithIconGroupName("counter")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Frenzy Until Turn End");
-                    ((StatusTokenApplyX)data).endTurn = true;
-                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Wideshot");
+                    ((StatusTokenApplyX)data).endTurn = false;
+                    ((StatusTokenApplyX)data).finiteUses = true;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
-                    ((ButtonCooldown)data).maxCooldown = 8;
+                    ((ButtonCooldown)data).maxCooldown = 6;
                     ((ButtonCooldown)data).cooldownCount = 6;
                 })
                 );
@@ -1477,7 +1521,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Temporary Barrage");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = true;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 14;
@@ -1507,7 +1551,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Temporary Barrage");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = true;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 9;
@@ -1836,9 +1880,9 @@ namespace Frostknights
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("MultiHit");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((StatusTokenApplyX)data).endTurn = false;
-                    ((StatusTokenApplyX)data).finiteUses = true;
-                    ((ButtonCooldown)data).maxCooldown = 13;
-                    ((ButtonCooldown)data).cooldownCount = 13;
+                    ((StatusTokenApplyX)data).finiteUses = false;
+                    ((ButtonCooldown)data).maxCooldown = 11;
+                    ((ButtonCooldown)data).cooldownCount = 9;
                 })
                 );
 
@@ -2220,7 +2264,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Heal (No Ping)");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Allies;
                     ((ButtonCooldown)data).maxCooldown = 8;
@@ -2239,7 +2283,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Bom Until Turn End");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Enemies;
                     ((ButtonCooldown)data).maxCooldown = 12;
@@ -2340,7 +2384,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Barrage Until Turn End");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 11;
@@ -2574,8 +2618,8 @@ namespace Frostknights
                 .WithIconGroupName("counter")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Hit Truly Random Target Until Turn End");
-                    ((StatusTokenApplyX)data).endTurn = true;
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Hit Truly Random Target");
+                    ((StatusTokenApplyX)data).endTurn = false;
                     ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 10;
@@ -2831,7 +2875,7 @@ namespace Frostknights
                 })
                 );
 
-            //Status 21: Trial of Thorns Button Listener_2
+            //Status 148: Trial of Thorns Button Listener_2
             assets.Add(
                 new StatusEffectDataBuilder(this)
                 .Create<StatusTokenApplyXListener>("Trial of Thorns Button Listener_2")
@@ -2840,6 +2884,30 @@ namespace Frostknights
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Bones Until Turn End");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
+            //Status 149: Wideshot
+            assets.Add(new StatusEffectDataBuilder(this)
+                .Create<StatusEffectChangeTargetMode>("Wideshot")
+                .WithCanBeBoosted(value: false)
+                .WithType("wideshot")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    StatusEffectChangeTargetMode statusEffectChangeTargetMode4 = data as StatusEffectChangeTargetMode;
+                    statusEffectChangeTargetMode4.targetMode = ScriptableObject.CreateInstance<TargetModeSlash2>();
+                })
+                );
+
+            //Status 150: Pierce
+            assets.Add(new StatusEffectDataBuilder(this)
+                .Create<StatusEffectChangeTargetMode>("Pierce")
+                .WithCanBeBoosted(value: false)
+                .WithType("pierce")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    StatusEffectChangeTargetMode statusEffectChangeTargetMode5 = data as StatusEffectChangeTargetMode;
+                    statusEffectChangeTargetMode5.targetMode = ScriptableObject.CreateInstance<TargetModePierce>();
                 })
                 );
 
@@ -3090,6 +3158,7 @@ namespace Frostknights
                 );
 
             //SilverAsh Card 10
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("silverAsh", "SilverAsh")
                 .SetSprites("SilverAsh.png", "SilverAsh BG.png")
@@ -3109,6 +3178,7 @@ namespace Frostknights
                 );
 
             //Młynar Card 11
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("młynar", "Młynar")
                 .SetSprites("Młynar.png", "Młynar BG.png")
@@ -3206,6 +3276,7 @@ namespace Frostknights
                 );
 
             //Qiubai Card 15
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("qiubai", "Qiubai")
                 .SetSprites("Qiubai.png", "Qiubai BG.png")
@@ -3318,6 +3389,7 @@ namespace Frostknights
                 );
 
             //Gavial Card 20
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("gavial", "Gavial")
                 .SetSprites("Gavial.png", "Gavial BG.png")
@@ -3343,6 +3415,7 @@ namespace Frostknights
                 );
 
             //Hoederer Card 21
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("hoederer", "Hoederer")
                 .SetSprites("Hoederer.png", "Hoederer BG.png")
@@ -3387,6 +3460,7 @@ namespace Frostknights
                 );
 
             //Degenbrecher Card 23
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("degenbrecher", "Degenbrecher")
                 .SetSprites("Degenbrecher.png", "Degenbrecher BG.png")
@@ -3576,6 +3650,7 @@ namespace Frostknights
                 );
 
             //W Card 32
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("w", "W")
                 .SetSprites("W.png", "W BG.png")
@@ -3640,6 +3715,7 @@ namespace Frostknights
                 );
 
             //Schwarz Card 35
+            //REWORK
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("schwarz", "Schwarz")
                 .SetSprites("Schwarz.png", "Schwarz BG.png")
