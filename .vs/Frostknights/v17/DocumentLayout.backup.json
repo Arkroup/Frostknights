@@ -7,16 +7,8 @@
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\frostknights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\artem\\documents\\github\\frostknights\\frostknights\\targetmodes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\targetmodes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\frostknights\\extpokefroststuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\extpokefroststuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\frostknights\\statuseffectburnage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\statuseffectburnage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|c:\\users\\artem\\documents\\github\\frostknights\\frostknights\\statuseffectdefense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\statuseffectdefense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,14 +23,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "TargetModes.cs",
-              "DocumentMoniker": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\TargetModes.cs",
-              "RelativeDocumentMoniker": "Frostknights\\TargetModes.cs",
-              "ToolTip": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\TargetModes.cs",
-              "RelativeToolTip": "Frostknights\\TargetModes.cs",
-              "ViewState": "AgIAAIAAAAAAAAAAAAAewJYAAAAJAAAAAAAAAA==",
+              "Title": "StatusEffectDefense.cs",
+              "DocumentMoniker": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\StatusEffectDefense.cs",
+              "RelativeDocumentMoniker": "Frostknights\\StatusEffectDefense.cs",
+              "ToolTip": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\StatusEffectDefense.cs",
+              "RelativeToolTip": "Frostknights\\StatusEffectDefense.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T01:51:32.486Z",
+              "WhenOpened": "2025-09-22T18:07:16.317Z",
               "EditorCaption": ""
             },
             {
@@ -49,35 +41,10 @@
               "RelativeDocumentMoniker": "Frostknights\\Frostknights.cs",
               "ToolTip": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\Frostknights.cs",
               "RelativeToolTip": "Frostknights\\Frostknights.cs",
-              "ViewState": "AgIAAOQEAAAAAAAAAAAIwAIFAAAtAAAAAAAAAA==",
+              "ViewState": "AgIAALcSAAAAAAAAAAAqwN0SAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-28T15:30:03.569Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ExtPokefrostStuff.cs",
-              "DocumentMoniker": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\ExtPokefrostStuff.cs",
-              "RelativeDocumentMoniker": "Frostknights\\ExtPokefrostStuff.cs",
-              "ToolTip": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\ExtPokefrostStuff.cs",
-              "RelativeToolTip": "Frostknights\\ExtPokefrostStuff.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAALAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T19:41:39.587Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "StatusEffectBurnage.cs",
-              "DocumentMoniker": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\StatusEffectBurnage.cs",
-              "RelativeDocumentMoniker": "Frostknights\\StatusEffectBurnage.cs",
-              "ToolTip": "C:\\Users\\artem\\Documents\\GitHub\\Frostknights\\Frostknights\\StatusEffectBurnage.cs",
-              "RelativeToolTip": "Frostknights\\StatusEffectBurnage.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAAwEMAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T19:04:57.677Z"
             },
             {
               "$type": "Bookmark",

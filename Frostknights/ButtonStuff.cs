@@ -291,6 +291,35 @@ namespace Frostknights
         public int cooldownCount;
         public int maxCooldown;
 
+        public class ButtonCooldownData
+        {
+            public int cooldownCount;
+            public int maxCooldown;
+        }
+
+        // --- Corrected Save and Load Methods ---
+        public override object GetMidBattleData()
+        {
+            // We create an instance of our data class and populate it with our current values.
+            ButtonCooldownData data = new ButtonCooldownData();
+            data.cooldownCount = cooldownCount;
+            data.maxCooldown = maxCooldown;
+            return data;
+        }
+
+        public override void RestoreMidBattleData(object data)
+        {
+            // We check if the loaded object is an instance of our data class.
+            if (data is ButtonCooldownData savedData)
+            {
+                // Restore our values from the loaded data.
+                cooldownCount = savedData.cooldownCount;
+                maxCooldown = savedData.maxCooldown;
+                // Update the UI to reflect the loaded data.
+                SetCooldownText();
+            }
+        }
+
         public void SetCooldownText()
         {
             if (target.display.FindStatusIcon(type) is not { } icon) return;

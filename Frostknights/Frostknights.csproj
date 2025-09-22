@@ -452,6 +452,8 @@
   <ItemGroup>
     <Compile Include="CardScripts.cs" />
     <Compile Include="AdressableExtPokefrost.cs" />
+    <Compile Include="StatusEffectDefense.cs" />
+    <Compile Include="StatusEffectFracture.cs" />
     <Compile Include="StatusEffectBones.cs" />
     <Compile Include="TargetConstraints.cs" />
     <Compile Include="StatusEffectDoubleButtonCooldown.cs" />
