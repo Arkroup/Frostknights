@@ -1,40 +1,47 @@
-﻿using System;
+﻿using Deadpan.Enums.Engine.Components.Modding;
+using HarmonyLib;
+using NaughtyAttributes;
+using Rewired;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Deadpan.Enums.Engine.Components.Modding;
-using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Tables;
-using UnityEngine.SceneManagement;
-using static StatusEffectBonusDamageEqualToX;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Tables;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using UnityEngine.TextCore.Text;
-using WildfrostHopeMod.VFX;
+using UnityEngine.UI;
 using WildfrostHopeMod.SFX;
 using WildfrostHopeMod.Utils;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using UnityEngine.Rendering;
-using UnityEngine.Events;
-using static UnityEngine.Rendering.DebugUI.Table;
+using WildfrostHopeMod.VFX;
 using static Building;
-using System.Threading;
-using Rewired;
-using static Steamworks.InventoryItem;
-using static DynamicTutorialSystem;
-using UnityEngine.Localization.Components;
-using NaughtyAttributes;
 using static CardData;
+using static DynamicTutorialSystem;
 using static SfxSystem;
+using static Steamworks.InventoryItem;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace Frostknights
 {
+    public class VFXHelper
+    {
+        public static GIFLoader VFX;
+        public static SFXLoader SFX;
+    }
+
     public class Frostknights : WildfrostMod
     {
+        internal static FXHelper fx;
+
         private void ArknightsPhoto(Scene scene)
         {
             if (scene.name == "Town")
@@ -70,11 +77,11 @@ namespace Frostknights
 
         public override string GUID => "artemys.wildfrost.frostknights"; //[creator name].[game name].[mod name] is standard convention. LOWERCASE!
 
-        public override string[] Depends => new string[0]; //The GUID of other mods that your mod requires. This tutorial has none of that.
+        public override string[] Depends => new string[] { "hope.wildfrost.vfx" }; //The GUID of other mods that your mod requires. This tutorial has none of that.
 
         public override string Title => "Frostknights";
 
-        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome. Several characters are due an update and will have a skill in the future: Irene, Ch'en, SilverAsh, Młynar, Qiubai, Pallas, Degenbrecher, Reed, Hoederer and Archetto\r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects! Thanks also to @artemis_w for the art for the tribe flag and the chain of the charms! And @megamarine for the Ignite icon!\r\n\r\nAll the card art is owned by Hypergryph";
+        public override string Description => "This mod adds a new tribe to the game based on the game Arknights, as well as many operators as companions, several items, charms, and more.\r\n\r\nCurrently there around 40 new companions! I'll do updates of each class and progressively add more, as well as slowly edit and tweak already released companions for balance.\r\n\r\nPlease do tell me your thoughts on balance! I'm pretty new to the game so any help is welcome. \r\n\r\nThanks a lot for all the help to the modding channel on the discord! And also thanks a lot to the Tokens mod people for tokens (really cool mod go check it out) and Pokefrost (also really cool mod go check it out) for the help and for letting me use their effects! Thanks also to @artemis_w for the art for the tribe flag and the chain of the charms! And @sunnysoap for letting me use their effects!\r\n\r\nAll the card art is owned by Hypergryph";
 
         public T TryGet<T>(string name) where T : DataFile
         {
@@ -191,6 +198,18 @@ namespace Frostknights
 
         private void CreateModAssets()
         {
+            //Animations
+            VFXHelper.VFX = new GIFLoader(this, this.ImagePath("Anim"));
+            VFXHelper.VFX.RegisterAllAsApplyEffect();
+
+            VFXHelper.SFX = new SFXLoader(ImagePath("Sounds"));
+            VFXHelper.SFX.RegisterAllSoundsToGlobal();
+
+            if (fx == null)
+            {
+                fx = new FXHelper(this, "Anim", "Sounds");
+            }
+
             //Icons
             assetSprites = HopeUtils
                 .CreateSpriteAsset("assetSprites", directoryWithPNGs: this.ImagePath("Sprites"), textures: [], sprites: []);
@@ -251,16 +270,14 @@ namespace Frostknights
                .WithCanStack(false)
                );
 
-            //Ignite Keyword
+            //Burnage Keyword
             assets.Add(
                new KeywordDataBuilder(this)
-               .Create("burning")
-               .WithTitle("Ignite")
+               .Create("burnage")
+               .WithTitle("Burnage")
                .WithShowName(false)
-               .WithDescription("Explodes when hit, damaging all targets in row then clearing|Applying more increases the explosion!", SystemLanguage.English)
-               .WithIconName("burningicon")
-               .WithTitleColour(new Color(1f, 0.2f, 0.2f))
-               .WithNoteColour(new Color(1f, 0.2f, 0.2f))
+               .WithDescription("When hit, deal <Inferno> damage to allies in the row. Take 1 <Fire> damage every turn. | Clears when hit, counts down by 2 every turn.", SystemLanguage.English)
+               .WithIconName("burnageicon")
                );
 
             //Trial of Thorns Keyword
@@ -268,7 +285,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("trialofthorns")
                .WithTitle("Trial of Thorns")
-               .WithDescription("<End Turn>: Gain <keyword=artemys.wildfrost.frostknights.provoke> and 5<keyword=teeth> for a turn | Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<End Turn>: Gain <keyword=artemys.wildfrost.frostknights.provoke>, 5<keyword=artemys.wildfrost.frostknights.bones>,and 5<keyword=shell> for a turn | Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Blazing Sun's Obeisance Keyword
@@ -332,7 +349,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("paenitete")
                .WithTitle("\"Paenitete\"")
-               .WithDescription("<End Turn>: Apply 2<keyword=artemys.wildfrost.frostknights.burning> to enemies in row| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<End Turn>: Apply 4<keyword=artemys.wildfrost.frostknights.burnage> to enemies in row| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Twilight Keyword
@@ -373,6 +390,7 @@ namespace Frostknights
                .Create("cooldown")
                .WithTitle("Cooldown")
                .WithShowName(true)
+               .WithIconName("cooldownicon")
                .WithDescription("The amount of turns you have to wait before being able to activate a skill", SystemLanguage.English)
                );
 
@@ -422,7 +440,7 @@ namespace Frostknights
                new KeywordDataBuilder(this)
                .Create("spiritburst")
                .WithTitle("Spirit Burst")
-               .WithDescription("<End Turn>: Gain 3<keyword=frenzy> and target random enemies for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
+               .WithDescription("<End Turn>: Gain 3<keyword=frenzy> and <keyword=artemys.wildfrost.frostknights.blindshot> for a turn| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
             //Monitor Keyword
@@ -497,6 +515,27 @@ namespace Frostknights
                .WithDescription("<Free Action>: On turn, apply 1<keyword=overload> to all enemies| Click to activate\nCooldown: {0} turns", SystemLanguage.English)
                );
 
+            //Blindshot Keyword
+            assets.Add(
+                new KeywordDataBuilder(this)
+                .Create("blindshot")
+                .WithTitle("Blindshot")
+                .WithTitleColour(new Color(0.50f, 0.50f, 0.85f))
+                .WithShowName(true) //Shows name in Keyword box (as opposed to a nonexistant icon).
+                .WithDescription("Hits a random enemy in any row", SystemLanguage.English) //Format is body|note.
+                .WithCanStack(false)
+                );
+
+            //Bones Keyword
+            assets.Add(
+               new KeywordDataBuilder(this)
+               .Create("bones")
+               .WithTitle("Bones")
+               .WithShowName(false)
+               .WithDescription("Deals damage to attackers, lose equal to damage taken from hits|Does teeth damage", SystemLanguage.English)
+               .WithIconName("bonesicon")
+               );
+
             //Code for traits
             //Splash Trait
             TraitDataBuilder splash = new TraitDataBuilder(this)
@@ -556,6 +595,18 @@ namespace Frostknights
                     })
                     );
 
+            //Blindshot Trait
+            TraitDataBuilder blindshot = new TraitDataBuilder(this)
+                .Create("Blindshot")
+                .WithOverrides(TryGet<TraitData>("Aimless"), TryGet<TraitData>("Barrage"), TryGet<TraitData>("Longshot"))
+                .SubscribeToAfterAllBuildEvent(
+                    (trait) =>
+                    {
+                        trait.keyword = Get<KeywordData>("blindshot");
+                        trait.effects = new StatusEffectData[] { TryGet<StatusEffectData>("Hit Truly Random Target") };
+                    });
+            assets.Add(blindshot);
+
             //Code for charms
             //Ancient Gaulish Silver Coin
             assets.Add(
@@ -594,7 +645,7 @@ namespace Frostknights
                 {
                     CardScriptReduceInitialCooldownBy2 cardScriptReduceInitialCooldownBy2 = ScriptableObject.CreateInstance<CardScriptReduceInitialCooldownBy2>();
                     CardScriptReduceMaxCooldown cardScriptReduceMaxCooldown = ScriptableObject.CreateInstance<CardScriptReduceMaxCooldown>();
-                    data.scripts = new CardScript[2] 
+                    data.scripts = new CardScript[2]
                     {
                         cardScriptReduceInitialCooldownBy2,
                         cardScriptReduceMaxCooldown
@@ -919,7 +970,7 @@ namespace Frostknights
                 .WithType("trialofthorns_listener")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Teeth Until Turn End");
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Shell Until Turn End");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
                 );
@@ -1078,22 +1129,25 @@ namespace Frostknights
                 .WithText("Deal <{a}> additional damage to <keyword=weakness>'d targets", SystemLanguage.English)
                 );
 
-            //Status 37: Burning
+            //Status 37: Burnage
             assets.Add(
                 new StatusEffectDataBuilder(this)
-                .Create<StatusEffectBurning>("Burning")
+                .Create<StatusEffectBurnage>("Burnage")
                 .WithVisible(true)
                 .WithIconGroupName("health")
                 .WithIsStatus(true)
                 .WithOffensive(true)
                 .WithStackable(true)
                 .WithTextInsert("{a}")
-                .WithKeyword("artemys.wildfrost.frostknights.burning")
-                .WithType("burning")
+                .WithKeyword("artemys.wildfrost.frostknights.burnage")
+                .WithType("burnage")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectData)data).removeOnDiscard = true;
-                    ((StatusEffectData)data).targetConstraints = new TargetConstraint[1] { ScriptableObject.CreateInstance<TargetConstraintIsUnit>() };
+                    ((StatusEffectData)data).targetConstraints = new TargetConstraint[1]
+                    {
+                        ScriptableObject.CreateInstance<TargetConstraintIsUnit>()
+                    };
                     ((StatusEffectData)data).applyFormatKey = Get<StatusEffectData>("Shroom").applyFormatKey;
                 })
                 );
@@ -1353,12 +1407,12 @@ namespace Frostknights
                 })
                 );
 
-            //Status 53: On Card Played Apply Apply Burning To EnemiesInRow
+            //Status 53: On Card Played Apply Apply Burnage To EnemiesInRow
             assets.Add(
-                StatusCopy("On Card Played Apply Snow To EnemiesInRow", "On Card Played Apply Apply Burning To EnemiesInRow")
+                StatusCopy("On Card Played Apply Snow To EnemiesInRow", "On Card Played Apply Apply Burnage To EnemiesInRow")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Burning");
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Burnage");
                 })
                 );
 
@@ -1371,7 +1425,7 @@ namespace Frostknights
                 .WithIconGroupName("counter")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Burning");
+                    ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Burnage");
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.EnemiesInRow;
                     ((StatusTokenApplyX)data).endTurn = true;
                     ((StatusTokenApplyX)data).finiteUses = false;
@@ -1650,7 +1704,7 @@ namespace Frostknights
                     ((StatusEffectData)data).canBeBoosted = true;
                     ((StatusEffectData)data).stackable = true;
                     ((StatusEffectData)data).textInsert = "<keyword=artemys.wildfrost.frostknights.cooldown>";
-                    ((StatusEffectData)data).type = "counter down";
+                    ((StatusEffectData)data).type = "cooldown";
                 })
                 );
 
@@ -1661,6 +1715,7 @@ namespace Frostknights
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
                     ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Reduce Cooldown");
+                    ((StatusEffectApplyX)data).noTargetTypeArgs = new string[] { "<sprite name=cooldownicon>" };
                 })
                 );
 
@@ -1797,10 +1852,10 @@ namespace Frostknights
                 })
                 );
 
-            //Status 81: Gain Teeth Until Turn End
+            //Status 81: Gain Shell Until Turn End
             assets.Add(
                 new StatusEffectDataBuilder(this)
-                .Create<StatusEffectApplyXUntilTurnEnd>("Gain Teeth Until Turn End")
+                .Create<StatusEffectApplyXUntilTurnEnd>("Gain Shell Until Turn End")
                 .WithCanBeBoosted(false)
                 .WithIsStatus(false)
                 .WithStackable(true)
@@ -1808,7 +1863,7 @@ namespace Frostknights
                 .WithVisible(false)
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Teeth");
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Shell");
                 })
                 );
 
@@ -2088,7 +2143,7 @@ namespace Frostknights
                 .WithType("spiritburst_listener")
                 .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
                 {
-                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Hit Truly Random Target Until Turn End");
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Blindshot Until Turn End");
                     ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                 })
                 );
@@ -2708,6 +2763,86 @@ namespace Frostknights
                 })
                 );
 
+            //Status 144: Blindshot Until Turn End
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectTraitUntilTurnEnd>("Blindshot Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(false)
+                .WithType("")
+                .WithVisible(false)
+                .FreeModify<StatusEffectTraitUntilTurnEnd>(
+                    (data) =>
+                    {
+                        data.targetConstraints = new TargetConstraint[0];
+                    })
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectTraitUntilTurnEnd)data).trait = TryGet<TraitData>("Blindshot");
+                })
+                );
+
+            //Status 145: Bones
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectBones>("Bones")
+                .WithIconGroupName("health")
+                .WithVisible(value: true)
+                .WithIsStatus(value: true)
+                .WithStackable(value: true)
+                .WithOffensive(value: false)
+                .WithTextInsert("{a}")
+                .WithKeyword("bones")
+                .WithType("bones")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    StatusEffectBones statusEffectBones = data as StatusEffectBones;
+                    data.applyFormatKey = TryGet<StatusEffectData>("Shroom").applyFormatKey;
+                    statusEffectBones.targetConstraints = new TargetConstraint[1]
+                    {
+                        new TargetConstraintCanBeHit()
+                    };
+                })
+                );
+
+            //Status 146: On Turn Apply Bones To Self
+            assets.Add(
+                StatusCopy("On Turn Apply Attack To Self", "On Turn Apply Bones To Self")
+                .WithText("Gain <{a}><keyword=artemys.wildfrost.frostknights.bones>", SystemLanguage.English)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Bones");
+                })
+                );
+
+            //Status 147: Gain Bones Until Turn End
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusEffectApplyXUntilTurnEnd>("Gain Bones Until Turn End")
+                .WithCanBeBoosted(false)
+                .WithIsStatus(false)
+                .WithStackable(true)
+                .WithType("")
+                .WithVisible(false)
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyXUntilTurnEnd)data).effectToApply = TryGet<StatusEffectData>("Bones");
+                })
+                );
+
+            //Status 21: Trial of Thorns Button Listener_2
+            assets.Add(
+                new StatusEffectDataBuilder(this)
+                .Create<StatusTokenApplyXListener>("Trial of Thorns Button Listener_2")
+                .WithType("trialofthorns_listener")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Gain Bones Until Turn End");
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
+                })
+                );
+
             //Code for units
             //Nian Card 1
             assets.Add(
@@ -2789,10 +2924,12 @@ namespace Frostknights
                 })
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.startWithEffects = new CardData.StatusEffectStacks[3]
+                    data.startWithEffects = new CardData.StatusEffectStacks[5]
                     {
-                        SStack("On Turn Apply Shell To Self", 3),
+                        SStack("On Turn Apply Bones To Self", 2),
+                        SStack("On Turn Apply Shell To Self", 2),
                         SStack("Trial of Thorns Button Listener_1", 5),
+                        SStack("Trial of Thorns Button Listener_2", 5),
                         SStack("Trial of Thorns Button", 1)
                     };
                     data.traits = new List<CardData.TraitStacks>()
@@ -3239,7 +3376,7 @@ namespace Frostknights
                 {
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Burning", 3)
+                        SStack("Burnage", 6)
                     };
                     data.startWithEffects = new CardData.StatusEffectStacks[2]
                     {
@@ -3429,11 +3566,11 @@ namespace Frostknights
                     };
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Burning", 2)
+                        SStack("Burnage", 4)
                     };
                     data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Paenitete Button", 2)
+                        SStack("Paenitete Button", 4)
                     };
                 })
                 );
@@ -4062,7 +4199,7 @@ namespace Frostknights
                 {
                     data.attackEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Burning", 2)
+                        SStack("Burnage", 4)
                     };
                 })
                 );
@@ -4242,8 +4379,14 @@ namespace Frostknights
 
         private void IconStuff()
         {
-            this.CreateIcon("burningicon", ImagePath("burningicon.png").ToSprite(), "burning", "spice", Color.white, new KeywordData[] { Get<KeywordData>("burning") })
-                .GetComponentInChildren<TextMeshProUGUI>(true).gameObject.transform.localPosition = new Vector3(0, -0.06f, 0);
+            this.CreateIcon("burnageicon", ImagePath("burnageicon.png").ToSprite(), "burnage", "frost", Color.white, shadowColor: new Color(0.4f, 0f, 0f), new KeywordData[] { Get<KeywordData>("burnage") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateIcon("cooldownicon", ImagePath("cooldownicon.png").ToSprite(), "cooldown", "counter", Color.white, shadowColor: new Color(0f, 0f, 0f), new KeywordData[] { Get<KeywordData>("cooldown") })
+                .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
+
+            this.CreateIcon("bonesicon", ImagePath("bonesicon.png").ToSprite(), "bones", "frost", Color.black, new Color(0.5f, 0.4f, 0f), new KeywordData[1] { Get<KeywordData>("bones") })
+                .GetComponentInChildren<TextMeshProUGUI>(includeInactive: true).enabled = true;
 
             this.CreateButtonIcon("penanceTrialofThorns", ImagePath("penancebutton.png").ToSprite(), "trialofthorns", "counter", Color.black, new KeywordData[] { Get<KeywordData>("trialofthorns") })
                 .GetComponentInChildren<TextMeshProUGUI>(true).enabled = true;
@@ -4515,8 +4658,9 @@ namespace Frostknights
                 swappers.Add(CreateSwapper("Iron Defense Button", "On Turn Apply Block To Allies", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Iron Defense Button Listener_1", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Opprobrium Button", "On Turn Summon Typewriter", minBoost: 0, maxBoost: 0));
-                swappers.Add(CreateSwapper("Trial of Thorns Button", "Teeth", minBoost: 2, maxBoost: 4));
+                swappers.Add(CreateSwapper("Trial of Thorns Button",  minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("Trial of Thorns Button Listener_1", minBoost: 0, maxBoost: 0));
+                swappers.Add(CreateSwapper("Trial of Thorns Button Listener_2", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("On Turn Decrease Cooldown To Allies", "On Turn Reduce Counter To Allies", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("On Turn Heal Mon3tr And Kal'tsit", "On Turn Heal Mon3tr2 And Kal'tsit", minBoost: 0, maxBoost: 0));
                 swappers.Add(CreateSwapper("When Deployed Add Mon3tr To Hand", "When Deployed Summon Mon3tr2", minBoost: 0, maxBoost: 0));

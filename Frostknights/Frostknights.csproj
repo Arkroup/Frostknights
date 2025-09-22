@@ -124,6 +124,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnfriendlyV1">
+      <HintPath>D:\SteamLibrary\steamapps\workshop\content\1811990\3568703689\UnfriendlyV1.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.2D.Animation.Runtime">
       <HintPath>D:\SteamLibrary\steamapps\common\Wildfrost\Modded\Wildfrost_Data\Managed\Unity.2D.Animation.Runtime.dll</HintPath>
     </Reference>
@@ -448,6 +451,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CardScripts.cs" />
+    <Compile Include="AdressableExtPokefrost.cs" />
+    <Compile Include="StatusEffectBones.cs" />
     <Compile Include="TargetConstraints.cs" />
     <Compile Include="StatusEffectDoubleButtonCooldown.cs" />
     <Compile Include="Frostknights.cs" />
@@ -456,7 +461,7 @@
     <Compile Include="ButtonStuff.cs" />
     <Compile Include="TargetModes.cs" />
     <Compile Include="ExtPokefrostStuff.cs" />
-    <Compile Include="StatusEffectBurning.cs" />
+    <Compile Include="StatusEffectBurnage.cs" />
     <Compile Include="StatusEffectInstantSplashDamage.cs" />
     <Compile Include="StatusEffectInstantCountUp.cs" />
     <Compile Include="StatusEffectWhileActiveXDoubleGold.cs" />

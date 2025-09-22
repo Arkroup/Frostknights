@@ -4,28 +4,66 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using WildfrostHopeMod.VFX;
+using WildfrostHopeMod.SFX;
+using static SfxSystem;
+
 
 namespace Frostknights
 {
-    public class StatusEffectBurning : StatusEffectData
+    public class StatusEffectBurnage : StatusEffectData
     {
         public CardAnimation buildupAnimation;
 
         public bool burning;
 
+        public bool subbed;
+
+        public bool primed;
+
         public override void Init()
         {
             Events.OnEntityHit += EntityHit;
+            base.OnTurnEnd += DealDamage2;
+            Events.OnPostProcessUnits += Prime;
+            subbed = true;
+        }
+
+        public void Unsub()
+        {
+            if (subbed)
+            {
+                Events.OnPostProcessUnits -= Prime;
+                subbed = false;
+            }
+        }
+
+        public void Prime(Character character)
+        {
+            primed = true;
+            Unsub();
+        }
+
+        public override bool RunTurnEndEvent(Entity entity)
+        {
+            if (primed && target.enabled)
+            {
+                return entity == target;
+            }
+
+            return false;
         }
 
         public void OnDestroy()
         {
             Events.OnEntityHit -= EntityHit;
+            Unsub();
         }
 
         public void EntityHit(Hit hit)
         {
-            if (hit.target == target && hit.Offensive && hit.canRetaliate)
+            if (hit.target == target && hit.BasicHit && hit.Offensive && hit.canRetaliate)
             {
                 Check();
             }
@@ -60,7 +98,8 @@ namespace Frostknights
 
             HashSet<Entity> targets = new HashSet<Entity>();
             CardContainer[] containers = target.containers;
-            foreach (CardContainer collection in containers)
+            CardContainer[] array = containers;
+            foreach (CardContainer collection in array)
             {
                 targets.AddRange(collection);
             }
@@ -76,13 +115,39 @@ namespace Frostknights
             {
                 Hit hit = new Hit(damager, item, count)
                 {
-                    damageType = "burning"
+                    screenShake = 0.5f,
+                    damageType = "inferno"
                 };
                 clump.Add(hit.Process());
             }
-            SfxSystem.OneShot("event:/sfx/status/overburn_damage");
+            VFXHelper.VFX.TryPlayEffect("burninga", target.transform.position, 1f * target.transform.lossyScale);
+            VFXHelper.SFX.TryPlaySound("burnagedmg");
+            target.curveAnimator.Ping();
+            yield return new WaitForSeconds(0f);
+            yield return Sequences.Wait(0.2f);
             clump.Add(Sequences.Wait(0.5f));
             yield return clump.WaitForEnd();
+        }
+
+        public IEnumerator DealDamage2(Entity entity)
+        {
+            Hit hit = new Hit(GetDamager(), target, 1)
+            {
+                screenShake = 0.25f,
+                damageType = "fire",
+                countsAsHit = true,
+                canRetaliate = false
+            };
+            VFXHelper.VFX.TryPlayEffect("bdmg", target.transform.position, 1f * target.transform.lossyScale);
+            VFXHelper.SFX.TryPlaySound("burningdmg");
+            yield return hit.Process();
+            yield return Sequences.Wait(0.2f);
+            int amount = 2;
+            Events.InvokeStatusEffectCountDown(this, ref amount);
+            if (amount != 0)
+            {
+                yield return CountDown(entity, amount);
+            }
         }
 
         public IEnumerator Clear()

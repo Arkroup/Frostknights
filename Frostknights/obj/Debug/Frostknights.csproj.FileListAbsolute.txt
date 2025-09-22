@@ -429,11 +429,9 @@ C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\UnityEngine.
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\VFX_Tests.dll
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\WildfrostHopeMod.Utils.dll
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\LibAPNG.dll
-C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\VFX_Tests.pdb
-C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\WildfrostHopeMod.Utils.pdb
-C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\LibAPNG.pdb
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\obj\Debug\Frostknights.csproj.AssemblyReference.cache
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\obj\Debug\Frostknights.csproj.CoreCompileInputs.cache
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\obj\Debug\Frostkni.4A21F2E2.Up2Date
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\obj\Debug\Frostknights.dll
 C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\obj\Debug\Frostknights.pdb
+C:\Users\artem\Documents\GitHub\Frostknights\Frostknights\bin\Debug\UnfriendlyV1.dll
