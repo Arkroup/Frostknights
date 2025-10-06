@@ -77,4 +77,30 @@ namespace Frostknights
             return Check(target.data);
         }
     }
+
+    public class TargetConstraintMaxCounterMoreThan : TargetConstraint
+    {
+        [SerializeField]
+        public int moreThan;
+
+        public override bool Check(Entity target)
+        {
+            if (target.counter.max <= moreThan)
+            {
+                return not;
+            }
+
+            return !not;
+        }
+
+        public override bool Check(CardData targetData)
+        {
+            if (targetData.counter <= moreThan)
+            {
+                return not;
+            }
+
+            return !not;
+        }
+    }
 }
