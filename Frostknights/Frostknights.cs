@@ -641,7 +641,7 @@ namespace Frostknights
                .Create("nervousimpairment")
                .WithTitle("Nervous Impairment")
                .WithShowName(false)
-               .WithDescription("Explodes when more than or equal to health, damaging the target", SystemLanguage.English)
+               .WithDescription("Explodes when reaching 3, damaging the target by 5 and applying <keyword=snow>", SystemLanguage.English)
                .WithIconName("nervousimpairmenticon")
                );
 
@@ -3337,7 +3337,7 @@ namespace Frostknights
                 {
                     ((StatusTokenApplyX)data).effectToApply = TryGet<StatusEffectData>("Wideshot Until Turn End");
                     ((StatusTokenApplyX)data).endTurn = false;
-                    ((StatusTokenApplyX)data).finiteUses = true;
+                    ((StatusTokenApplyX)data).finiteUses = false;
                     ((StatusTokenApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.Self;
                     ((ButtonCooldown)data).maxCooldown = 8;
                     ((ButtonCooldown)data).cooldownCount = 5;
@@ -3362,6 +3362,17 @@ namespace Frostknights
                 {
                     ((StatusEffectTraitUntilTurnEnd)data).trait = TryGet<TraitData>("Wideshot");
                 })
+                );
+
+            //Status 171: On Turn Apply Burnage to Enemies In Row
+            assets.Add(
+                StatusCopy("On Turn Apply Demonize To Enemies", "On Turn Apply Burnage to EnemiesInRow")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.EnemiesInRow;
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Burnage");
+                })
+                .WithText("Apply <{a}><keyword=artemys.wildfrost.frostknights.burnage> to enemies in row", SystemLanguage.English)
                 );
 
             //Code for units
@@ -4975,7 +4986,7 @@ namespace Frostknights
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("missChristine", "Miss Christine")
                 .SetSprites("Miss Christine.png", "Miss Christine BG.png")
-                .SetStats(4, 2, 3)
+                .SetStats(4, 1, 3)
                 .WithCardType("Friendly")
                 .IsPet("", true)
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
@@ -4996,14 +5007,14 @@ namespace Frostknights
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("dolly", "Dolly")
                 .SetSprites("Dolly.png", "Dolly BG.png")
-                .SetStats(4, 3, 3)
+                .SetStats(4, null, 5)
                 .WithCardType("Friendly")
                 .IsPet("", true)
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.attackEffects = new CardData.StatusEffectStacks[1]
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Fracture", 2)
+                        SStack("On Turn Apply Burnage to EnemiesInRow", 2)
                     };
                 })
                 );

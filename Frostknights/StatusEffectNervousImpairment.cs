@@ -46,7 +46,7 @@ namespace Frostknights
 
         public void Check()
         {
-            if (count >= target.hp.current && !braining)
+            if (count >= 3 && !braining)
             {
                 ActionQueue.Stack(new ActionSequence(DealDamage())
                 {
@@ -71,21 +71,29 @@ namespace Frostknights
                 yield break;
             }
 
-            HashSet<Entity> targets = new HashSet<Entity>();
-            CardContainer[] containers = target.containers;
-
             if ((bool)buildupAnimation)
             {
                 yield return buildupAnimation.Routine(target);
             }
 
             Entity damager = GetDamager();
-            Routine.Clump clump = new Routine.Clump();
-            yield return target.Kill(DeathType.Normal);
+
+            Hit hit = new Hit(damager, target, 5)
+            {
+                canRetaliate = false
+            };
+            yield return hit.Process();
+
+            if (target && target.alive)
+            {
+                StatusEffectData snowEffect = AddressableLoader.Get<StatusEffectData>("StatusEffectData", "Snow");
+                yield return StatusEffectSystem.Apply(target, damager, snowEffect, 1);
+            }
 
             VFXHelper.VFX.TryPlayEffect("nervousimpairmentdmg", target.transform.position, 1f * target.transform.lossyScale);
             VFXHelper.SFX.TryPlaySound("nervousimpairmentdmg");
 
+            Routine.Clump clump = new Routine.Clump();
             clump.Add(Sequences.Wait(0.5f));
             yield return clump.WaitForEnd();
         }
