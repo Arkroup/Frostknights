@@ -7,7 +7,7 @@
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\frostknights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|d:\\modding\\wildfrost\\frostknights\\frostknights\\statuseffectnervousimpairment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|D:\\Modding\\Wildfrost\\Frostknights\\frostknights\\statuseffectnervousimpairment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{15FF71D0-E6D9-472D-906E-3501C69E4C88}|Frostknights\\Frostknights.csproj|solutionrelative:frostknights\\statuseffectnervousimpairment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -30,8 +30,7 @@
               "RelativeToolTip": "Frostknights\\StatusEffectNervousImpairment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-22T16:17:22.351Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-22T16:17:22.351Z"
             },
             {
               "$type": "Document",
@@ -41,7 +40,7 @@
               "RelativeDocumentMoniker": "Frostknights\\Frostknights.cs",
               "ToolTip": "D:\\Modding\\Wildfrost\\Frostknights\\Frostknights\\Frostknights.cs",
               "RelativeToolTip": "Frostknights\\Frostknights.cs",
-              "ViewState": "AgIAAPINAAAAAAAAAAAvwBAOAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAFITAAAAAAAAAAAvwG8TAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-17T03:36:33.554Z",
               "EditorCaption": ""

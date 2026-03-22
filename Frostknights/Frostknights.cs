@@ -3375,6 +3375,17 @@ namespace Frostknights
                 .WithText("Apply <{a}><keyword=artemys.wildfrost.frostknights.burnage> to enemies in row", SystemLanguage.English)
                 );
 
+            //Status 172: On Turn Apply Scrap to Ally In Front Of
+            assets.Add(
+                StatusCopy("On Turn Apply Attack To Self", "On Turn Apply Scrap To AllyInFrontOf")
+                .SubscribeToAfterAllBuildEvent(delegate (StatusEffectData data)
+                {
+                    ((StatusEffectApplyX)data).applyToFlags = StatusEffectApplyX.ApplyToFlags.AllyInFrontOf;
+                    ((StatusEffectApplyX)data).effectToApply = TryGet<StatusEffectData>("Scrap");
+                })
+                .WithText("Apply <{a}><keyword=scrap> to ally ahead, even if it doesn't have any", SystemLanguage.English)
+                );
+
             //Code for units
             //Nian Card 1
             assets.Add(
@@ -4947,7 +4958,6 @@ namespace Frostknights
                 })
                 );
 
-            //Code for Pets
             //Emperor Pet
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("emperor", "Emperor")
@@ -4964,24 +4974,22 @@ namespace Frostknights
                 })
                 );
 
-            //Code for Pets
             //High Priest Pet
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("highPriest", "High Priest")
                 .SetSprites("High Priest.png", "High Priest BG.png")
-                .SetStats(4, 3, 3)
+                .SetStats(4, 2, 4)
                 .WithCardType("Friendly")
                 .IsPet("", true)
                 .SubscribeToAfterAllBuildEvent(delegate (CardData data)
                 {
-                    data.attackEffects = new CardData.StatusEffectStacks[1]
+                    data.startWithEffects = new CardData.StatusEffectStacks[1]
                     {
-                        SStack("Fracture", 2)
+                        SStack("On Turn Apply Scrap To AllyInFrontOf", 1)
                     };
                 })
                 );
 
-            //Code for Pets
             //Miss Chrstine Pet
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("missChristine", "Miss Christine")
@@ -5002,7 +5010,6 @@ namespace Frostknights
                 })
                 );
 
-            //Code for Pets
             //Dolly Pet
             assets.Add(
                 new CardDataBuilder(this).CreateUnit("dolly", "Dolly")
